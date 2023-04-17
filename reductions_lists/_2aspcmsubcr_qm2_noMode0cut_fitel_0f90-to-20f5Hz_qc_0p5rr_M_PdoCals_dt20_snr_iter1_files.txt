@@ -1,0 +1,7 @@
+./ACT-CLJ0200.3+0019/Jy_ACT-CLJ0200.3+0019_2aspcmsubcr_qm2_noMode0cut_fitel_0f90-to-20f5Hz_qc_0p5rr_M_PdoCals_dt20_snr_iter1.fits
+./ACT-CLJ0201.6-0211/Jy_ACT-CLJ0201.6-0211_2aspcmsubcr_qm2_noMode0cut_fitel_0f90-to-20f5Hz_qc_0p5rr_M_PdoCals_dt20_snr_iter1.fits
+./ACT-CLJ0201.6-0503/Jy_ACT-CLJ0201.6-0503_2aspcmsubcr_qm2_noMode0cut_fitel_0f90-to-20f5Hz_qc_0p5rr_M_PdoCals_dt20_snr_iter1.fits
+./ACT-CLJ0203.0-0042/Jy_ACT-CLJ0203.0-0042_2aspcmsubcr_qm2_noMode0cut_fitel_0f90-to-20f5Hz_qc_0p5rr_M_PdoCals_dt20_snr_iter1.fits
+./ACT-CLJ0203.2-0123/Jy_ACT-CLJ0203.2-0123_2aspcmsubcr_qm2_noMode0cut_fitel_0f90-to-20f5Hz_qc_0p5rr_M_PdoCals_dt20_snr_iter1.fits
+./ACT-CLJ0203.7+0216/Jy_ACT-CLJ0203.7+0216_2aspcmsubcr_qm2_noMode0cut_fitel_0f90-to-20f5Hz_qc_0p5rr_M_PdoCals_dt20_snr_iter1.fits
+./ACT-CLJ0248.0-0331/Jy_ACT-CLJ0248.0-0331_2aspcmsubcr_qm2_noMode0cut_fitel_0f90-to-20f5Hz_qc_0p5rr_M_PdoCals_dt20_snr_iter1.fits

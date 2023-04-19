@@ -41,7 +41,7 @@ for k in range(len(reduc_list)):
 		plt.imshow(img_snr,origin="lower",cmap="bwr")
 		plt.title(cluster+" red "+code[k])
 		plt.scatter(np.array(psrcs_cluster["x"]),np.array(psrcs_cluster["y"]),color="none",edgecolor="black")
-		plt.scatter(np.array(matched_cluster["x"]),np.array(matched_cluster["y"]),color="none",edgecolor="red")
+		plt.scatter(np.array(matched_cluster["x"]),np.array(matched_cluster["y"]),color="none",edgecolor="green")
 		plt.scatter(x_vlass,y_vlass,color="none",marker="s",edgecolor="blue")
 		plt.scatter(x_first,y_first,color="none",marker="s",edgecolor="blue")
 		plt.savefig("psrc_img/"+cluster+"reduc_"+code[k]+".png")

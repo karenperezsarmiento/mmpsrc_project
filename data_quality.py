@@ -14,7 +14,7 @@ codes = np.array(list(red_codes["code"]))
 dir_map = "/home/scratch/cromero/MUSTANG2/Reductions/ACT_Sources_2023_0f09-to-35f5_PCA0"
 
 
-all_clusters = np.array(pd.read_csv("gbt298_obs.csv")["Source"])
+#all_clusters = np.array(pd.read_csv("gbt298_obs.csv")["Source"])
 #red1_list = np.array(pd.read_csv("/users/ksarmien/Documents/pnt_src_project/reductions_lists/_2asp_pca3_qm2_fitel_0f11-to-25f5Hz_qc_1p2rr_M_PdoCals_dt20_snr_iter1_files.txt",header=None))
 #red2_list = np.array(pd.read_csv("/users/ksarmien/Documents/pnt_src_project/reductions_lists/_2aspcmsubqm2_fitel_0f09-to-41f1Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_files.txt",header=None))
 
@@ -35,7 +35,7 @@ def minimize(pars,xdata,hist_data):
 
 
 for k in [20]:
-	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k]))
+	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k],header=None))
 	current_code = codes[k]
 	reduc = re.sub("_files.txt","",reduc_list[k])
 	for i in cluster_list:

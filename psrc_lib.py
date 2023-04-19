@@ -69,8 +69,8 @@ def load_noise(clustername):
     return img
 
 def load_hits_map(clustername):
-    mapD = clustername
-    hdu = fits.open(mapD)[1]
+    filename = re.sub('snr','map',clustername)
+    hdu = fits.open(filename)[1]
     img = hdu.data
     return img
 
@@ -155,7 +155,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     for i in range(len(theta1)): 
         for j in range(len(theta2)):
             if theta2[j]>theta1[i]:
-                blobs=feature.blob_dog(-1*snr_original,theta1[i],theta2[j],threshold=th)
+                blobs=feature.blob_dog(snr_original,theta1[i],theta2[j],threshold=th)
                 x_coord = np.array(blobs[:,0],int)
                 y_coord = np.array(blobs[:,1],int)
                 vals=snr_original[x_coord,y_coord]
@@ -266,6 +266,6 @@ df_quality = pd.read_csv("data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]
 df_psrcs = pd.merge(df_psrcs,df_quality,how="left",left_on="cluster",right_on="Source")
 
-filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/negative_uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma.csv"
+filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma.csv"
 df_psrcs.to_csv(filename_1,index=False)
 

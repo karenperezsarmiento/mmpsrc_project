@@ -7,7 +7,7 @@ reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
 reduction = reduc+"_files.txt"
 reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
 
-cluster_list = np.array(pd.read_csv(reduction_list))
+cluster_list = np.array(pd.read_csv(reduction_list,header=None))
 cluster_name = []
 cluster_ra = []
 cluster_dec = []

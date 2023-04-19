@@ -16,7 +16,7 @@ def gaussian(xdata,amp,mean,std):
         return amp*np.exp(-1*(xdata-mean)**2/(2*std**2))
 
 for k in range(len(reduc_list)):
-	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k]))
+	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k],header=None))
 	for i in cluster_list:
 		cluster = i[0][2:20]
 		filtered = data_qual.loc[data_qual["Source"]==cluster]

@@ -9,7 +9,7 @@ direc_list = ["ACT_Sources_2023_0f11-to-25f5_PCA3/","ACT_Sources_2023_0f09-to-35
 code = ["19","20"]
 
 for k in range(len(reduc_list)):
-	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k]))
+	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k],header=None))
 	for i in cluster_list:
 		cluster = i[0][2:20]
 		c_snr =  "/home/scratch/cromero/MUSTANG2/Reductions/"+direc_list[k]+i[0][2:]
@@ -20,12 +20,12 @@ for k in range(len(reduc_list)):
 		img_snr = hdu_snr.data
 		img_map = hdu_map.data
 		fig = plt.figure()
-		plt.imshow(img_snr)
+		plt.imshow(img_snr,cmap="bwr")
 		plt.title(cluster)
 		plt.savefig("snr_maps/"+cluster+"reduc_"+code[k]+".png")
 		plt.close(fig)
 		fig = plt.figure()
-		plt.imshow(img_map)
+		plt.imshow(img_map,cmap="bwr")
 		plt.title(cluster)
 		plt.savefig("maps/"+cluster+"reduc_"+code[k]+".png")
 		plt.close(fig)

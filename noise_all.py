@@ -10,7 +10,7 @@ cluster_name = []
 good_noise_area = []
 
 for k in range(len(reduc_list)):
-	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k]))
+	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k],header=None))
 	for i in cluster_list:
 		cluster = i[0][2:20]
 		c_snr =  "/home/scratch/cromero/MUSTANG2/Reductions/"+cluster+i[0][20:]

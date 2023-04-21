@@ -83,7 +83,7 @@ for k in [20]:
 		x_arr = np.arange(np.floor(-1*x/2),np.floor(x/2))
 		y_arr = np.arange(np.floor(-1*y/2),np.floor(y/2))
 		x_mesh,y_mesh = np.meshgrid(x_arr,y_arr)
-		r = np.sqrt(x_mesh**2,y_mesh**2)
+		r = np.sqrt(x_mesh**2+y_mesh**2)
 		rad = 2*pix_per_arcmin #2 arcmin radius in pixels
 		mask = r<rad
 		mask = mask.astype(int)

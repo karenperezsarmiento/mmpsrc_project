@@ -58,7 +58,7 @@ for k in range(len(reduc_list)):
 		x_mesh,y_mesh = np.meshgrid(x_arr,y_arr)
 		r = np.sqrt(x_mesh**2+y_mesh**2)
 		for j in range(len(min_rad)):
-			n = img[np.logical_and((r<=max_rad[j]),(r>min_rad[j]*pixel_per_arcmin))]
+			n = img[np.logical_and((r<=max_rad[j]*pixel_per_arcmin),(r>min_rad[j]*pixel_per_arcmin))]
 			H[j] = H[j] + np.histogram(n,bins=b)[0]
 			N_pix[j] = N_pix[j] + len(n)
 		textstr = '\n'.join((
@@ -74,7 +74,8 @@ for k in range(len(reduc_list)):
 		plt.savefig("snr_histogram/"+cluster+"reduc_"+code[k]+".png")
 		plt.close(fig)
 
- 
+
+np.savetxt("histo_data.csv",H) 
 fig = plt.figure()
 for i in range(len(min_rad)-4):
 	p = opt.minimize(minimize,[np.max(H[i]),0,1],args=(b[1:],H[i])).x

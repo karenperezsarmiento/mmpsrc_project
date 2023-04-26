@@ -77,7 +77,7 @@ for k in range(len(reduc_list)):
 
 np.savetxt("histo_data.csv",H) 
 fig = plt.figure()
-for i in range(len(min_rad)-4):
+for i in range(len(min_rad)-6):
 	p = opt.minimize(minimize,[np.max(H[i]),0,1],args=(b[1:],H[i])).x
 	plt.bar(b[1:],H[i]/N_pix[i],label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]),alpha=0.5)
 plt.title("Histogram of SNR per annuli across all cluster maps")

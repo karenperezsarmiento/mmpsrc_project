@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 import pandas as pd
 import re
+import scipy.optimize as opt
 
 reduc_list = ["_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_files.txt"]
 direc_list = ["ACT_Sources_2023_0f09-to-35f5_PCA0/"]
@@ -21,6 +22,10 @@ N_pix = np.zeros(len(min_rad))
 
 def gaussian(xdata,amp,mean,std):
         return amp*np.exp(-1*(xdata-mean)**2/(2*std**2))
+
+def minimize(pars,xdata,hist_data):
+        res = hist_data - gaussian(xdata, *pars)
+        return np.sqrt(np.mean(res**2))
 
 for k in range(len(reduc_list)):
 	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k],header=None))
@@ -69,12 +74,13 @@ for k in range(len(reduc_list)):
 		plt.savefig("snr_histogram/"+cluster+"reduc_"+code[k]+".png")
 		plt.close(fig)
 
-		 
+ 
 fig = plt.figure()
 for i in range(len(min_rad)-4):
+	p = opt.minimize(minimize,[np.max(H[i]),0,1],args=(b[1:],H[i])).x
 	plt.bar(b[1:],H[i],label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]))
 plt.title("Histogram of SNR per annuli across all cluster maps")
 plt.legend()
-plt.xlim(0.0,0.002)
+plt.xlim(-7,7)
 plt.savefig("hist_snr_all.png")
 plt.close(fig)

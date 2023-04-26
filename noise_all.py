@@ -57,7 +57,7 @@ plt.plot(b[1:],H_total)
 plt.xlabel("Noise level")
 plt.title("Cumulative count of pixels above a noise level")
 plt.xlim(0.0,0.03)
-plt.savefig("cumulative_noise_pixels.png")
+plt.savefig("noise_hist/cumulative_noise_pixels.png")
 plt.close(fig)
 
 fig = plt.figure()
@@ -67,7 +67,7 @@ plt.xlabel("Noise level")
 plt.legend()
 plt.title("Cumulative histogram of pixels above a noise level in given annuli")
 plt.xlim(0.0,0.003)
-plt.savefig("cumulative_noise_area.png")
+plt.savefig("noise_hist/cumulative_noise_pixels_radii.png")
 plt.close(fig)
 
 fig = plt.figure()
@@ -76,7 +76,7 @@ for i in range(len(min_rad)-4):
 plt.title("Histogram of median noise per annuli across all cluster maps")
 plt.legend()
 plt.xlim(0.0,0.002)
-plt.savefig("hist_median_noise.png")
+plt.savefig("noise_hist/hist_median_noise.png")
 plt.close(fig)
 
 for i in range(len(min_rad)-4):

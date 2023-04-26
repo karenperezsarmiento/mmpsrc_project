@@ -12,11 +12,20 @@ data_qual = pd.read_csv("data_quality_code_20.csv")
 cluster_name = []
 good_noise_area = []
 
+b = np.linspace(-7.0,7.0,100)
+min_rad = [0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5]
+max_rad = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0]
+H = np.zeros((len(min_rad),len(b)-1))
+N_pix = np.zeros(len(min_rad))
+
+
 def gaussian(xdata,amp,mean,std):
         return amp*np.exp(-1*(xdata-mean)**2/(2*std**2))
 
 for k in range(len(reduc_list)):
 	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k],header=None))
+	all_means = np.zeros((len(min_rad),len(cluster_list)))
+	all_std = np.zeros((len(min_rad),len(cluster_list)))
 	for i in cluster_list:
 		cluster = i[0][2:20]
 		filtered = data_qual.loc[data_qual["Source"]==cluster]
@@ -30,9 +39,23 @@ for k in range(len(reduc_list)):
 		hdu_weight = fits.open(c_weight)[1]
 		img = hdu.data
 		img_weight = hdu_weight.data
-		histo = np.histogram(img[img_weight>0.0].ravel(),bins = np.linspace(-7.0,7.0,100))[0]
-		x_histo = np.linspace(-7.0,7.0,100)[:-1] + np.diff(np.linspace(-7.0,7.0,100))/2
+		histo = np.histogram(img[img_weight>0.0].ravel(),bins = b)[0]
+		x_histo = b[:-1] + np.diff(b)/2
 		fit = gaussian(x_histo,amp,mean,std)
+		arcsec_per_pixel = (3600*np.abs(hdu.header["CD1_1"]))
+		pixel_per_arcsec = 1./arcsec_per_pixel
+		pixel_per_arcmin = pixel_per_arcsec*60.
+		arcsec_per_pixel_sq = arcsec_per_pixel**2
+		x = img.shape[1]
+		y = img.shape[0]
+		x_arr = np.arange(np.floor(-1*x/2),np.floor(x/2))
+		y_arr = np.arange(np.floor(-1*y/2),np.floor(y/2))
+		x_mesh,y_mesh = np.meshgrid(x_arr,y_arr)
+		r = np.sqrt(x_mesh**2+y_mesh**2)
+		for j in range(len(min_rad)):
+			n = img[np.logical_and((r<=max_rad[j]),(r>min_rad[j]*pixel_per_arcmin))]
+			H[j] = H[j] + np.histogram(n,bins=b)[0]
+			N_pix[j] = N_pix[j] + len(n)
 		textstr = '\n'.join((
     			r'$\mu=%.2f$' % (mean, ),
     			r'$\sigma=%.2f$' % (std, )))
@@ -47,3 +70,11 @@ for k in range(len(reduc_list)):
 		plt.close(fig)
 
 		 
+fig = plt.figure()
+for i in range(len(min_rad)-4):
+	plt.bar(b[1:],H[i],label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]))
+plt.title("Histogram of SNR per annuli across all cluster maps")
+plt.legend()
+plt.xlim(0.0,0.002)
+plt.savefig("hist_snr_all.png")
+plt.close(fig)

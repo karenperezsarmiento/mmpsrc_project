@@ -14,8 +14,8 @@ cluster_name = []
 good_noise_area = []
 
 b = np.linspace(-7.0,7.0,100)
-min_rad = [0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5]
-max_rad = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0]
+min_rad = [0.0,1.0,2.0,3.0,4.0,5.0,6.0]
+max_rad = [1.0,2.0,3.0,4.0,5.0,6.0,7.0]
 H = np.zeros((len(min_rad),len(b)-1))
 N_pix = np.zeros(len(min_rad))
 
@@ -77,9 +77,9 @@ for k in range(len(reduc_list)):
 
 np.savetxt("histo_data.csv",H) 
 fig = plt.figure()
-for i in range(len(min_rad)-6):
+for i in range(len(min_rad)-3):
 	p = opt.minimize(minimize,[np.max(H[i]),0,1],args=(b[1:],H[i])).x
-	plt.bar(b[1:],H[i]/N_pix[i],fill=False,label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]),alpha=0.5)
+	plt.bar(b[1:],H[i]/N_pix[i],label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]),alpha=0.5)
 plt.title("Histogram of SNR per annuli across all cluster maps")
 plt.legend()
 plt.xlim(-7,7)

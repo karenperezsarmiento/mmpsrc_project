@@ -62,9 +62,8 @@ def load_map(clustername):
 
 
 def load_noise(clustername):
-    filename = re.sub('snr','noise',clustername)
-    mapD = filename
-    hdu = fits.open(mapD)[0]
+    mapD = clustername
+    hdu = fits.open(mapD)[1]
     img = hdu.data
     return img
 

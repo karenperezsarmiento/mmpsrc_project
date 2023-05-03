@@ -20,10 +20,10 @@ for i in range(len(tabs_list)):
     right_on_cols = [s + suffixes_right[i] for s in cols_to_match]
     all_matched = all_matched.merge(tabs_list[i],how="outer",left_on=cols_to_match,right_on=right_on_cols)
 
-f_0_w1 = 306.682 #Jy
-f_0_w2 = 170.663 #Jy
-f_0_w3 = 29.045 #Jy
-f_0_w4 = 8.284 #Jy
+f_0_w1 = 309.540 #Jy
+f_0_w2 = 171.787 #Jy
+f_0_w3 = 31.674#Jy
+f_0_w4 = 8.363 #Jy
 all_matched["w1_flux_wise"] = f_0_w1 * 10**(-1*all_matched["w1mpro_wise"]/2.5) * 1000 #mJy
 all_matched["w2_flux_wise"] = f_0_w2 * 10**(-1*all_matched["w2mpro_wise"]/2.5) * 1000 #mJy
 all_matched["w3_flux_wise"] = f_0_w3 * 10**(-1*all_matched["w3mpro_wise"]/2.5) * 1000 #mJy

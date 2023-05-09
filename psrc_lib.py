@@ -154,7 +154,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     for i in range(len(theta1)): 
         for j in range(len(theta2)):
             if theta2[j]>theta1[i]:
-                blobs=feature.blob_dog(-1*snr_original,theta1[i],theta2[j],threshold=th)
+                blobs=feature.blob_dog(snr_original,theta1[i],theta2[j],threshold=th)
                 x_coord = np.array(blobs[:,0],int)
                 y_coord = np.array(blobs[:,1],int)
                 vals=snr_original[x_coord,y_coord]
@@ -190,7 +190,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
         coords_ra_dec = np.array(coords_ra_dec)
         sky_coord_blob = SkyCoord(ra=coords_ra_dec[:,0]*u.degree,dec=coords_ra_dec[:,1]*u.degree,frame="icrs")
         sep = np.array(central_coord.separation(sky_coord_blob).radian) 
-        param_list = np.empty([1,18])
+        param_list = np.empty([1,19])
         for src in blob_list:
             ps_val = snr_scaled[int(src[1]),int(src[0])]
             ps_mask = bool(ps_val == 0.0)
@@ -203,12 +203,16 @@ def point_srcs(clustername,theta1,theta2,nsigma):
             #ps_wf = wf
             try:
                 p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),signal_map_ravel)).x
+                g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3],p[4],p[5],p[6])
+                int_flux = np.sum(g_r[g_r>0])
                 p_snr = opt.minimize(minimize,[snr_original[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),snr_ravel)).x
             except RuntimeError:
                 p = np.repeat(0,7)
+                int_flux = 0
                 p_snr = np.repeat(0,7)
             #p = gaussianFit(signal_map,src[1],src[0])
             #p = np.append(p,inj_bool)
+            p = np.append(p, int_flux)
             p = np.append(p,p_snr)
             p = np.append(p,ps_val)
             p = np.append(p,ps_mask)
@@ -243,7 +247,7 @@ with open(reduction_list) as f:
         all_snr_files.append(l)
 theta1 = [2,3,4,5,6,7]
 theta2 = [2,3,4,5,6,7]
-psrc_list = np.empty([1,26])
+psrc_list = np.empty([1,27])
 
 t0=time.time()
 for i in all_snr_files:
@@ -258,13 +262,13 @@ t1=time.time()
 t = t1-t0
 print(t)
 
-df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma_x_fit','sigma_y_fit','theta','offset','amp_snr','x_snr','y_snr','sigma_x_snr','sigma_y_snr','theta_snr','offset_snr','snr','masked','noise_ps','hits_ps'])
-df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma_x_fit':float,'sigma_y_fit':float,'theta':float,'offset':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_x_snr':float,'sigma_y_snr':float,'theta_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
+df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma_x_fit','sigma_y_fit','theta','offset','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_x_snr','sigma_y_snr','theta_snr','offset_snr','snr','masked','noise_ps','hits_ps'])
+df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma_x_fit':float,'sigma_y_fit':float,'theta':float,'offset':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_x_snr':float,'sigma_y_snr':float,'theta_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
 df_quality = pd.read_csv("data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]
 df_psrcs = pd.merge(df_psrcs,df_quality,how="left",left_on="cluster",right_on="Source")
 
-filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/negative_uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma.csv"
+filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma.csv"
 df_psrcs.to_csv(filename_1,index=False)
 

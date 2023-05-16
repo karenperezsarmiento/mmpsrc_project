@@ -98,7 +98,7 @@ def rms(dog_map,snr_map,signal_map):
     rms_signal = np.std(signal_map.flatten())
     return rms_dog, rms_snr,rms_signal
 
-def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
+def twoD_Gaussian_elliptical(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
     (x,y) = xdata_tuple
     xo = float(xo)
     yo = float(yo)    
@@ -106,6 +106,13 @@ def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offse
     b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
     c = (np.sin(theta)**2)/(2*sigma_x**2) + (np.cos(theta)**2)/(2*sigma_y**2)
     g = offset + amplitude*np.exp( - (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo) + c*((y-yo)**2)))
+    return g.ravel()
+
+def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma):
+    (x,y) = xdata_tuple
+    xo = float(xo)
+    yo = float(yo)
+    g = amplitude*np.exp( - ((x-xo)**2 + (y-yo)**2)/2*sigma**2)
     return g.ravel()
 
 def minimize(pars,xdata_tuple,map_ravel):
@@ -190,7 +197,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
         coords_ra_dec = np.array(coords_ra_dec)
         sky_coord_blob = SkyCoord(ra=coords_ra_dec[:,0]*u.degree,dec=coords_ra_dec[:,1]*u.degree,frame="icrs")
         sep = np.array(central_coord.separation(sky_coord_blob).radian) 
-        param_list = np.empty([1,19])
+        param_list = np.empty([1,13])
         for src in blob_list:
             ps_val = snr_scaled[int(src[1]),int(src[0])]
             ps_mask = bool(ps_val == 0.0)
@@ -202,14 +209,17 @@ def point_srcs(clustername,theta1,theta2,nsigma):
             #ps_psd = psd
             #ps_wf = wf
             try:
-                p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),signal_map_ravel)).x
-                g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3],p[4],p[5],p[6])
-                int_flux = np.sum(g_r[g_r>0])
-                p_snr = opt.minimize(minimize,[snr_original[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),snr_ravel)).x
+                #p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),signal_map_ravel)).x
+                p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),signal_map_ravel)).x
+                #g_r = twoD_Gaussian_elliptical((x,y),p[0],p[1],p[2],p[3],p[4],p[5],p[6])
+                g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
+                int_flux = np.sum(g_r)
+                #p_snr = opt.minimize(minimize,[snr_original[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),snr_ravel)).x
+                p_snr = opt.minimize(minimize,[snr_original[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),snr_ravel)).x
             except RuntimeError:
-                p = np.repeat(0,7)
+                p = np.repeat(0,4)
                 int_flux = 0
-                p_snr = np.repeat(0,7)
+                p_snr = np.repeat(0,4)
             #p = gaussianFit(signal_map,src[1],src[0])
             #p = np.append(p,inj_bool)
             p = np.append(p, int_flux)
@@ -247,7 +257,7 @@ with open(reduction_list) as f:
         all_snr_files.append(l)
 theta1 = [2,3,4,5,6,7]
 theta2 = [2,3,4,5,6,7]
-psrc_list = np.empty([1,27])
+psrc_list = np.empty([1,21])
 
 t0=time.time()
 for i in all_snr_files:
@@ -262,13 +272,13 @@ t1=time.time()
 t = t1-t0
 print(t)
 
-df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma_x_fit','sigma_y_fit','theta','offset','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_x_snr','sigma_y_snr','theta_snr','offset_snr','snr','masked','noise_ps','hits_ps'])
-df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma_x_fit':float,'sigma_y_fit':float,'theta':float,'offset':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_x_snr':float,'sigma_y_snr':float,'theta_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
+df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
+df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
 df_quality = pd.read_csv("data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]
 df_psrcs = pd.merge(df_psrcs,df_quality,how="left",left_on="cluster",right_on="Source")
 
-filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma.csv"
+filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma_circgaussian.csv"
 df_psrcs.to_csv(filename_1,index=False)
 

@@ -15,7 +15,7 @@ reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
 all_vlass = pd.read_csv("/users/ksarmien/mmpsrc_project/all_vlass_sources_in_cluster_maps_rad_6arcmin.csv")
 all_first = pd.read_csv("/users/ksarmien/mmpsrc_project/all_first_sources_in_cluster_maps_rad_6arcmin.csv")
 
-def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
+def twoD_Gaussian_elliptical(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
     (x,y) = xdata_tuple
     xo = float(xo)
     yo = float(yo)
@@ -23,6 +23,13 @@ def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offse
     b = -(np.sin(2*theta))/(4*sigma_x**2) + (np.sin(2*theta))/(4*sigma_y**2)
     c = (np.sin(theta)**2)/(2*sigma_x**2) + (np.cos(theta)**2)/(2*sigma_y**2)
     g = offset + amplitude*np.exp( - (a*((x-xo)**2) + 2*b*(x-xo)*(y-yo) + c*((y-yo)**2)))
+    return g.ravel()
+
+def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma):
+    (x,y) = xdata_tuple
+    xo = float(xo)
+    yo = float(yo)
+    g  = amplitude*np.exp( - ((x-xo)**2 + (y-yo)**2)/2*sigma**2)
     return g.ravel()
 
 def minimize(pars,xdata_tuple,map_ravel):
@@ -36,8 +43,8 @@ ra_arr = []
 dec_arr =[]
 pixx_arr = []
 pixy_arr = []
-p_map_arr = np.zeros(7)
-p_snr_arr = np.zeros(7)
+p_map_arr = np.zeros(4)
+p_snr_arr = np.zeros(4)
 cluster_arr =[]
 vlass_name_arr = []
 vlass_id_arr = []
@@ -72,13 +79,13 @@ for k in clusters_unique:
 		pixx_arr = np.append(pixx_arr,pixx)
 		pixy_arr = np.append(pixy_arr,pixy)
 		if (pixx<xlen)&(pixy<ylen):
-			p = opt.minimize(minimize,[img_map[int(pixy),int(pixx)],pixx,pixy,3,3,0,0],args=((x,y),img_map_ravel)).x
+			p = opt.minimize(minimize,[img_map[int(pixy),int(pixx)],pixx,pixy,3],args=((x,y),img_map_ravel)).x
 			p_map_arr = np.vstack((p_map_arr,p))
-			p_snr = opt.minimize(minimize,[img_snr[int(pixy),int(pixx)],pixx,pixy,3,3,0,0],args=((x,y),img_snr_ravel)).x
+			p_snr = opt.minimize(minimize,[img_snr[int(pixy),int(pixx)],pixx,pixy,3],args=((x,y),img_snr_ravel)).x
 			p_snr_arr = np.vstack((p_snr_arr,p_snr))
 		else:
-			p_map_arr = np.vstack((p_map_arr,np.zeros(7)))
-			p_snr_arr = np.vstack((p_snr_arr,np.zeros(7)))
+			p_map_arr = np.vstack((p_map_arr,np.zeros(4)))
+			p_snr_arr = np.vstack((p_snr_arr,np.zeros(4)))
 		
 
 p_map_arr = p_map_arr[1:]
@@ -95,9 +102,9 @@ df = np.vstack((cluster_arr,vlass_name_arr,vlass_id_arr,ra_arr,dec_arr,pixx_arr,
 
 #print(df.shape)
 
-df = pd.DataFrame(df.T, columns=['cluster','Component_name','Component_id','ra_vlass','dec_vlass','pix_x','pix_y','amp_map','x_map','y_map','sigma_x_map','sigma_y_map','theta_map','offset_map','amp_snr','x_snr','y_snr','sigma_x_snr','sigma_y_snr','theta_snr','offset_snr'])
+df = pd.DataFrame(df.T, columns=['cluster','Component_name','Component_id','ra_vlass','dec_vlass','pix_x','pix_y','amp_map','x_map','y_map','sigma_map','amp_snr','x_snr','y_snr','sigma_snr'])
 
-df = df.astype(dtype={'cluster':str,'Component_name':str,'Component_id':float,'ra_vlass':float,'dec_vlass':float,'pix_x':float,'pix_y':float,'amp_map':float,'x_map':float,'y_map':float,'sigma_x_map':float,'sigma_y_map':float,'theta_map':float,'offset_map':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_x_snr':float,'sigma_y_snr':float,'theta_snr':float,'offset_snr':float})
+df = df.astype(dtype={'cluster':str,'Component_name':str,'Component_id':float,'ra_vlass':float,'dec_vlass':float,'pix_x':float,'pix_y':float,'amp_map':float,'x_map':float,'y_map':float,'sigma_map':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float})
 
 df_joined = df.merge(all_vlass,how="left",left_on=["cluster","Component_name","ra_vlass","dec_vlass"],right_on=["cluster","Component_name","RA_2","DEC_2"])
 

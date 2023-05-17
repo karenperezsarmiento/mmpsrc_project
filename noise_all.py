@@ -86,6 +86,7 @@ for i in range(len(min_rad)-4):
 	hist,bins = np.histogram(median_noise[i],bins=np.linspace(0,0.003,100))
 	plt.step(bins[:-1],hist,where="post",label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]))
 	plt.title("Histogram of median noise in annuli across all cluster maps")
+	plt.yscale("log")
 	plt.legend()
 	if i<5:
 		plt.xlim(0.0,0.0005)

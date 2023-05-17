@@ -56,7 +56,7 @@ fig = plt.figure()
 plt.plot(b[1:],H_total)
 plt.xlabel("Noise level")
 plt.title("Cumulative count of pixels above a noise level")
-plt.xlim(0.0,0.03)
+plt.xlim(0.0,0.003)
 plt.savefig("noise_hist/cumulative_noise_pixels.png")
 plt.close(fig)
 

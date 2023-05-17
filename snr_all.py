@@ -80,6 +80,7 @@ fig = plt.figure()
 for i in range(len(min_rad)-3):
 	p = opt.minimize(minimize,[np.max(H[i]),0,1],args=(b[1:],H[i])).x
 	plt.step(b[:-1],H[i]/N_pix[i],label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]))
+plt.yscale("log")
 plt.title("Histogram of SNR per annuli across all cluster maps")
 plt.legend()
 plt.xlim(-7,7)

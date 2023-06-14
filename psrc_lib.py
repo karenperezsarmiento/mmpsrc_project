@@ -149,7 +149,7 @@ def get_depth_map(clusterfile):
 
 def point_srcs(clustername,theta1,theta2,nsigma):    
     #blob_dict={}
-    blob_list = np.empty([1,4])
+    blob_list = np.empty([1,5])
     snr_original,snr_scaled,factor=load_and_scale(clustername)
     signal_map,world,crval_ra,crval_dec = load_map(clustername)
     hits_map = load_hits_map(clustername)
@@ -164,13 +164,11 @@ def point_srcs(clustername,theta1,theta2,nsigma):
                 blobs=feature.blob_dog(snr_original,theta1[i],theta2[j],threshold=th)
                 x_coord = np.array(blobs[:,0],int)
                 y_coord = np.array(blobs[:,1],int)
-                vals=snr_original[x_coord,y_coord]
-                x_final=x_coord[vals>0.0]
-                y_final=y_coord[vals>0.0]
-                theta1_arr = np.repeat(theta1[i],len(x_final))
-                theta2_arr = np.repeat(theta2[j],len(y_final))
+                sigma_dog = np.array(blobs[:,2],float)
+                theta1_arr = np.repeat(theta1[i],len(x_coord))
+                theta2_arr = np.repeat(theta2[j],len(y_coord))
                 try:
-                    b = np.array(list(zip(y_final,x_final,theta1_arr,theta2_arr)))
+                    b = np.array(list(zip(y_coord,x_coord,sigma_dog,theta1_arr,theta2_arr)))
                     blob_list = np.vstack((blob_list,b))
                 except ValueError:
                     pass
@@ -257,7 +255,7 @@ with open(reduction_list) as f:
         all_snr_files.append(l)
 theta1 = [2,3,4,5,6,7]
 theta2 = [2,3,4,5,6,7]
-psrc_list = np.empty([1,21])
+psrc_list = np.empty([1,22])
 
 t0=time.time()
 for i in all_snr_files:
@@ -272,13 +270,13 @@ t1=time.time()
 t = t1-t0
 print(t)
 
-df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
-df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
+df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
+df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
 df_quality = pd.read_csv("data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]
 df_psrcs = pd.merge(df_psrcs,df_quality,how="left",left_on="cluster",right_on="Source")
 
-filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma_circgaussian.csv"
+filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma.csv"
 df_psrcs.to_csv(filename_1,index=False)
 

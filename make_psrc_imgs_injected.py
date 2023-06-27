@@ -26,7 +26,7 @@ for i in ff:
 	img_snr = hdu_snr.data
 	plt.subplot(projection=wcs)
 	plt.imshow(img_snr,origin="lower",cmap="bwr")
-	plt.title(str(i))	
+	plt.title(str(c))	
 	#plt.scatter(x_first,y_first,color="none",marker="s",edgecolor="blue")
 	plt.scatter(np.array(fake_cluster["X_loc(pixels)"]),np.array(fake_cluster["Y_loc(pixels)"]),color="none",edgecolor="green")	
 	plt.scatter(np.array(found_cluster["x"]),np.array(found_cluster["y"]),color="none",edgecolor="black")    

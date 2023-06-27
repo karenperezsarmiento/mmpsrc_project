@@ -30,7 +30,7 @@ dir_map = "/home/scratch/sdicker/AGBT21B_298"
 reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
 reduction = "injected.txt"
 reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
-nsigma = 4.
+nsigma = 3.
 
 def load_and_scale(cluster_file):
     mapD=cluster_file
@@ -251,7 +251,7 @@ with open(reduction_list) as f:
         l = l[:-1]
         all_snr_files.append(l)
 theta1 = [2]
-theta2 = [6]
+theta2 = [10]
 psrc_list = np.empty([1,22])
 
 t0=time.time()
@@ -270,6 +270,6 @@ print(t)
 df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
 df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
-filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/injected_psrcs_"+reduc+"_"+str(nsigma)+"sigma.csv"
+filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/injectedi_2_10_psrcs_"+reduc+"_"+str(nsigma)+"sigma.csv"
 df_psrcs.to_csv(filename_1,index=False)
 

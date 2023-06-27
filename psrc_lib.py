@@ -29,7 +29,7 @@ from scipy import stats
 dir_map = "/home/scratch/cromero/MUSTANG2/Reductions/ACT_Sources_2023_0f09-to-35f5_PCA0"
 reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
 reduction = reduc+"_files.txt"
-reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
+reduction_list = "/users/ksarmien/mmpsrc_project/map_quality_tables/reductions_lists/"+reduction
 nsigma = 4.
 
 red_codes = pd.read_csv("reductions_code.csv")
@@ -273,7 +273,7 @@ print(t)
 df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
 df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
-df_quality = pd.read_csv("data_quality_code_20.csv")
+df_quality = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]
 df_psrcs = pd.merge(df_psrcs,df_quality,how="left",left_on="cluster",right_on="Source")
 

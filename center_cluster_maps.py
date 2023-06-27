@@ -27,4 +27,4 @@ for i in cluster_list:
 	
 central_arr = np.column_stack((cluster_name,cluster_ra,cluster_dec))
 df_central = pd.DataFrame(central_arr, columns = ["cluster","ra","dec"])
-df_central.to_csv("cluster_map_centers.csv")
+df_central.to_csv("/users/ksarmien/mmpsrc_project/catalogs/cluster_map_centers.csv")

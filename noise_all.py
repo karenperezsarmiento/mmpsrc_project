@@ -47,9 +47,10 @@ for i in cluster_list:
 	A_total = A_total+A_c
 	ii+=1
 
-index_labels = list(np.str(np.array(list(zip(min_rad,max_rad)))))
-df = pd.DataFrame(mask,columns = list(np.str(b[1:])),index=index_labels)
-df.to_csv("noise_by_radii_hist.csv")
+index_labels = list(np.array(list(zip(min_rad,max_rad))))
+index_labels = map(str,index_labels)
+df = pd.DataFrame(mask,columns = list(b[1:]),index=index_labels)
+df.to_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/noise_by_radii_hist.csv")
 
 fig = plt.figure()
 plt.plot(b[1:],H_total)

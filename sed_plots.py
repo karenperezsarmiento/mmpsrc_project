@@ -52,4 +52,4 @@ for i in range(len(f_all_matched)):
 sed_arr = sed_arr[1:]
 df_sed = pd.DataFrame(sed_arr,columns=["cluster","ra_deg","dec_deg","FINT_first","Total_flux_vlass","int_flux_Jy","alpha","sed_offset"])
 
-df_sed.to_csv("spectral_indices.csv")
+df_sed.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/spectral_indices.csv")

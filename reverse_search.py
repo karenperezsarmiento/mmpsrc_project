@@ -12,8 +12,8 @@ reduc_map = re.sub("snr","map",reduc)
 reduction = reduc+"_files.txt"
 reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
 
-all_vlass = pd.read_csv("/users/ksarmien/mmpsrc_project/all_vlass_sources_in_cluster_maps_rad_6arcmin.csv")
-all_first = pd.read_csv("/users/ksarmien/mmpsrc_project/all_first_sources_in_cluster_maps_rad_6arcmin.csv")
+all_vlass = pd.read_csv("/users/ksarmien/mmpsrc_project/catalogs/all_vlass_sources_in_cluster_maps_rad_6arcmin.csv")
+all_first = pd.read_csv("/users/ksarmien/mmpsrc_project/catalogs/all_first_sources_in_cluster_maps_rad_6arcmin.csv")
 
 def twoD_Gaussian_elliptical(xdata_tuple, amplitude, xo, yo, sigma_x, sigma_y, theta, offset):
     (x,y) = xdata_tuple
@@ -108,5 +108,5 @@ df = df.astype(dtype={'cluster':str,'Component_name':str,'Component_id':float,'r
 
 df_joined = df.merge(all_vlass,how="left",left_on=["cluster","Component_name","ra_vlass","dec_vlass"],right_on=["cluster","Component_name","RA_2","DEC_2"])
 
-df_joined.to_csv("reverse_search"+reduc+".csv")
+df_joined.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/reverse_search"+reduc+".csv")
 

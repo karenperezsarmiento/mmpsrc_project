@@ -109,5 +109,5 @@ gaussian_fit_snr = gaussian_fit_snr[1:]
 red = np.column_stack((cluster_name,cluster_rms_map,cluster_rms_snr,cluster_avg_snr,cluster_ntail,gaussian_fit_snr,reduction_type))
 df_red = pd.DataFrame(red, columns = ['Source','rms_map','rms_snr','avg_snr','ntail','amp_fit_snr','mean_fit_snr','std_fit_snr','red_type'])
 
-df_red.to_csv("data_quality_code_20.csv")
+df_red.to_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/data_quality_code_20.csv")
 

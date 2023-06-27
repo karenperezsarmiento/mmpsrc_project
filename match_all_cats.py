@@ -4,16 +4,16 @@ import numpy as np
 
 m_vlass = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_vlass.csv").add_suffix("_vlass")
 m_first = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_first.csv").add_suffix("_first")
-m_gleam = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_gleam.csv").add_suffix("_gleam")
-m_tgss = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_tgss.csv").add_suffix("_tgss")
-m_lotss = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_lotss.csv").add_suffix("_lotss")
+m_gleam = pd.read_csv("psrc_lists/matched_100arcsec_1and2_best1_gleam.csv").add_suffix("_gleam")
+m_tgss = pd.read_csv("psrc_lists/matched_25arcsec_1and2_best1_tgss.csv").add_suffix("_tgss")
+#m_lotss = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_lotss.csv").add_suffix("_lotss")
 m_2mass = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_2mass.csv").add_suffix("_2mass")
 m_wise = pd.read_csv("psrc_lists/matched_9arcsec_1and2_best1_wise.csv").add_suffix("_wise")
 
 blind = pd.read_csv("psrc_lists/uncleaned_psrcs_sigma__2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_4.0sigma.csv")
 all_matched = blind
-tabs_list = [m_vlass,m_first,m_gleam,m_tgss,m_lotss,m_2mass,m_wise]
-suffixes_right=["_vlass","_first","_gleam","_tgss","_lotss","_2mass","_wise"]
+tabs_list = [m_vlass,m_first,m_gleam,m_tgss,m_2mass,m_wise]
+suffixes_right=["_vlass","_first","_gleam","_tgss","_2mass","_wise"]
 cols_to_match = ["cluster","ra_deg","dec_deg","theta_1","theta_2"]
 
 for i in range(len(tabs_list)):

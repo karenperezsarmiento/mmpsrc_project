@@ -19,7 +19,8 @@ for i in ff:
 	c_snr = direc_list+i[2:]
 	hdu_snr = fits.open(c_snr)[0]
 	wcs = WCS(hdu_snr.header)
-	c = i[2:20]
+	c = i[5:23]
+	print(c)
 	fake_cluster = fake.loc[fake["Cluster"]==c]
 	found_cluster = injected_found.loc[injected_found["cluster"]==c]
 	fig = plt.figure()

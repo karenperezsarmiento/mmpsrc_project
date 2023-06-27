@@ -30,7 +30,7 @@ dir_map = "/home/scratch/sdicker/AGBT21B_298"
 reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
 reduction = "injected.txt"
 reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
-nsigma = 3.
+nsigma = 5.
 
 def load_and_scale(cluster_file):
     mapD=cluster_file

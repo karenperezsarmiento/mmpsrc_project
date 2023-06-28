@@ -32,9 +32,9 @@ all_matched["w4_flux_wise"] = f_0_w4 * 10**(-1*all_matched["w4mpro_wise"]/2.5) *
 f_0_2mass_j = 1590 #Jy
 f_0_2mass_h = 1020 #Jy
 f_0_2mass_k = 667 # Jy
-all_matched["j_flux_wise"] = f_0_2mass_j * 10**(-1*all_matched["j_m_2mass"]/2.5) * 1000 #mJy
-all_matched["h_flux_wise"] = f_0_2mass_h * 10**(-1*all_matched["h_m_2mass"]/2.5) * 1000 #mJy
-all_matched["k_flux_wise"] = f_0_2mass_k * 10**(-1*all_matched["k_m_2mass"]/2.5) * 1000 #mJy
+all_matched["j_flux_2mass"] = f_0_2mass_j * 10**(-1*all_matched["j_m_2mass"]/2.5) * 1000 #mJy
+all_matched["h_flux_2mass"] = f_0_2mass_h * 10**(-1*all_matched["h_m_2mass"]/2.5) * 1000 #mJy
+all_matched["k_flux_2mass"] = f_0_2mass_k * 10**(-1*all_matched["k_m_2mass"]/2.5) * 1000 #mJy
 
 all_matched.to_csv("psrc_lists/all_matched.csv")
 

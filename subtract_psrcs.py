@@ -56,7 +56,7 @@ signal_copy = np.copy(signal_map)
 signal_copy_ravel = signal_copy.ravel()
 for src in blobs:
 	#p = opt.minimize(chi_sqr,[signal_copy[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),signal_map_ravel)).x
-	p = opt.minimize(chi_sqr,[signal_copy[int(src[0]),int(src[1])],src[1],src[0],10],args=((x,y),signal_copy_ravel)).x
+	p = opt.minimize(chi_sqr,[signal_map[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),signal_map_ravel)).x
 	print("initial guess: "+str(np.array([signal_copy[int(src[0]),int(src[1])],src[1],src[0],3]))) 
 	print("fit results " +str(p))
 	g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])

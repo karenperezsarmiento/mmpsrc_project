@@ -13,7 +13,7 @@ def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma):
     g = amplitude*np.exp( - ((x-xo)**2 + (y-yo)**2)/2*sigma**2)
     return g.ravel()
 
-def minimize(pars,xdata_tuple,map_ravel):
+def chi_sqr(pars,xdata_tuple,map_ravel):
     res = map_ravel - twoD_Gaussian(xdata_tuple, *pars)
     return np.sqrt(np.mean(res**2))
 
@@ -53,8 +53,10 @@ x,y=np.meshgrid(x,y)
 signal_map_ravel = signal_map.ravel()
 
 signal_copy = np.copy(signal_map)
+signal_copy_ravel = signal_copy.ravel()
 for src in blobs:
-	p = opt.minimize(minimize,[signal_copy[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),signal_map_ravel)).x
+	#p = opt.minimize(chi_sqr,[signal_copy[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),signal_map_ravel)).x
+	p = opt.minimize(chi_sqr,[signal_copy[int(src[0]),int(src[1])],src[1],src[0],10],args=((x,y),signal_copy_ravel)).x
 	print("initial guess: "+str(np.array([signal_copy[int(src[0]),int(src[1])],src[1],src[0],3]))) 
 	print("fit results " +str(p))
 	g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
@@ -63,6 +65,7 @@ for src in blobs:
 	plt.imshow(g_r)
 	plt.savefig(str(src[0])+", "+str(src[1])+".png")
 	signal_copy = signal_copy - g_r
+	signal_copy_ravel = signal_copy.ravel()
 
 fig = plt.figure()
 plt.imshow(snr_map)

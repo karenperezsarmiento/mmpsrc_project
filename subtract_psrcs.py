@@ -52,14 +52,26 @@ y = np.linspace(0,ylen-1,ylen)
 x,y=np.meshgrid(x,y)
 signal_map_ravel = signal_map.ravel()
 
+signal_copy = np.copy(signal_map)
 for src in blobs:
-	p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),signal_map_ravel)).x
-
+	p = opt.minimize(minimize,[signal_copy[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),signal_map_ravel)).x
+	print("initial guess: "+str(np.array([signal_copy[int(src[0]),int(src[1])],src[1],src[0],3]))) 
+	print("fit results " +str(p))
 	g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
 	g_r = g_r.reshape(xlen,ylen)
+	signal_copy = signal_copy - g_r
 
-subtracted = signal_map - g_r
-
-
+fig = plt.figure()
 plt.imshow(snr_map)
 plt.savefig("test_snr.png")
+plt.close(fig)
+
+fig = plt.figure()
+plt.imshow(signal_map)
+plt.savefig("test_map.png")
+plt.close(fig)
+
+fig = plt.figure()
+plt.imshow(signal_copy)
+plt.savefig("test_sub.png")
+plt.close(fig)

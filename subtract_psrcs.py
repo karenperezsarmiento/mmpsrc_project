@@ -59,6 +59,9 @@ for src in blobs:
 	print("fit results " +str(p))
 	g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
 	g_r = g_r.reshape(xlen,ylen)
+	fig = plt.figure()
+	plt.imshow(g_r)
+	plt.savefig(str(src[0])+", "+str(src[1])+".png")
 	signal_copy = signal_copy - g_r
 
 fig = plt.figure()

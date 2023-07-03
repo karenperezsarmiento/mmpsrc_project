@@ -26,8 +26,8 @@ final_matched = cut_cat(matched,theta_1,theta_2,inner_rad,snr_lower,snr_higher,n
 final.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/final_cat_snr_5_3arcmin_snr_7.csv")
 final_matched.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")
 
-final_paper = final[["cluster","ra_deg","dec_deg","dist_center_radians","int_flux_Jy"]]
-final_matched_paper = final_matched[["cluster","ra_deg","dec_deg","dist_center_radians","int_flux_Jy","dist_center_radians","int_flux_Jy","Component_name_vlass","Component_id_vlass","RA_vlass","DEC_vlass","Total_flux_vlass","Source_first","RA_first","DEC_first","FINT_first","Source_gleam","RAJ2000_gleam","DEJ2000_gleam","int_flux_wide_gleam","Source_name_tgss","RA_tgss","DEC_tgss","Total_flux_tgss","ra_wise","dec_wise","w1_flux_wise","w2_flux_wise","w3_flux_wise","w4_flux_wise","ra_2mass","dec_2mass","j_flux_2mass","h_flux_2mass","k_flux_2mass"]]
+final_paper = final[["cluster","ra_deg","dec_deg","dist_center_radians","int_flux_Jy","int_flux_err_Jy"]]
+final_matched_paper = final_matched[["cluster","ra_deg","dec_deg","dist_center_radians","int_flux_Jy","int_flux_err_Jy","dist_center_radians","int_flux_Jy","Component_name_vlass","Component_id_vlass","RA_vlass","DEC_vlass","Total_flux_vlass","Source_first","RA_first","DEC_first","FINT_first","Source_gleam","RAJ2000_gleam","DEJ2000_gleam","int_flux_wide_gleam","Source_name_tgss","RA_tgss","DEC_tgss","Total_flux_tgss","ra_wise","dec_wise","w1_flux_wise","w2_flux_wise","w3_flux_wise","w4_flux_wise","ra_2mass","dec_2mass","j_flux_2mass","h_flux_2mass","k_flux_2mass"]]
 
 final_paper.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/PAPER_final_cat_snr_5_3arcmin_snr_7.csv")
 

@@ -12,7 +12,7 @@ code = "20"
 theta_1 = 2.0
 theta_2 = 6.0
 fake = pd.read_csv("/users/ksarmien/mmpsrc_project/psrc_lists/fake_pnt_amplitudes.txt",names=["Cluster","amp(jy)","X_loc(pixels)","Y_loc(pixels)"],header=None,delimiter=r"\s+")
-injected_found = pd.read_csv("/users/ksarmien/mmpsrc_project/psrc_lists/injected_psrcs__2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_4.0sigma.csv")
+injected_found = pd.read_csv("/users/ksarmien/mmpsrc_project/psrc_lists/injected_2_6_psrcs__2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_5.0sigma.csv")
 
 ff = np.unique(np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/injected.txt",header=None)))
 for i in ff:

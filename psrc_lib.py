@@ -29,10 +29,10 @@ from scipy import stats
 dir_map = "/home/scratch/cromero/MUSTANG2/Reductions/ACT_Sources_2023_0f09-to-35f5_PCA0"
 reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
 reduction = reduc+"_files.txt"
-reduction_list = "/users/ksarmien/mmpsrc_project/map_quality_tables/reductions_lists/"+reduction
+reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
 nsigma = 4.
 
-red_codes = pd.read_csv("reductions_code.csv")
+red_codes = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/reductions_code.csv")
 code = np.array(pd.to_numeric(red_codes["code"][red_codes["reduction"] == reduction]))[0]
 
 def load_and_scale(cluster_file):
@@ -112,7 +112,7 @@ def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma):
     (x,y) = xdata_tuple
     xo = float(xo)
     yo = float(yo)
-    g = amplitude*np.exp( - ((x-xo)**2 + (y-yo)**2)/2*sigma**2)
+    g = amplitude*np.exp( - ((x-xo)**2 + (y-yo)**2)/(2*sigma**2))
     return g.ravel()
 
 def minimize(pars,xdata_tuple,map_ravel):
@@ -195,7 +195,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
         coords_ra_dec = np.array(coords_ra_dec)
         sky_coord_blob = SkyCoord(ra=coords_ra_dec[:,0]*u.degree,dec=coords_ra_dec[:,1]*u.degree,frame="icrs")
         sep = np.array(central_coord.separation(sky_coord_blob).radian) 
-        param_list = np.empty([1,13])
+        param_list = np.empty([1,14])
         for src in blob_list:
             ps_val = snr_scaled[int(src[1]),int(src[0])]
             ps_mask = bool(ps_val == 0.0)
@@ -208,7 +208,9 @@ def point_srcs(clustername,theta1,theta2,nsigma):
             #ps_wf = wf
             try:
                 #p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),signal_map_ravel)).x
-                p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),signal_map_ravel)).x
+                fit = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),signal_map_ravel))
+                p = fit.x
+                flux_err = np.sqrt(np.sum(np.diag(fit.hess_inv)))
                 #g_r = twoD_Gaussian_elliptical((x,y),p[0],p[1],p[2],p[3],p[4],p[5],p[6])
                 g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
                 int_flux = np.sum(g_r)
@@ -217,10 +219,12 @@ def point_srcs(clustername,theta1,theta2,nsigma):
             except RuntimeError:
                 p = np.repeat(0,4)
                 int_flux = 0
+                flux_err = 0
                 p_snr = np.repeat(0,4)
             #p = gaussianFit(signal_map,src[1],src[0])
             #p = np.append(p,inj_bool)
             p = np.append(p, int_flux)
+            p = np.append(p,flux_err)
             p = np.append(p,p_snr)
             p = np.append(p,ps_val)
             p = np.append(p,ps_mask)
@@ -255,7 +259,7 @@ with open(reduction_list) as f:
         all_snr_files.append(l)
 theta1 = [2,3,4,5,6,7]
 theta2 = [2,3,4,5,6,7]
-psrc_list = np.empty([1,22])
+psrc_list = np.empty([1,23])
 
 t0=time.time()
 for i in all_snr_files:
@@ -270,8 +274,8 @@ t1=time.time()
 t = t1-t0
 print(t)
 
-df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
-df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
+df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','int_flux_err_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
+df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'int_flux_err_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
 df_quality = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]

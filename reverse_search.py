@@ -29,7 +29,7 @@ def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma):
     (x,y) = xdata_tuple
     xo = float(xo)
     yo = float(yo)
-    g  = amplitude*np.exp( - ((x-xo)**2 + (y-yo)**2)/2*sigma**2)
+    g  = amplitude*np.exp( - ((x-xo)**2 + (y-yo)**2)/(2*sigma**2))
     return g.ravel()
 
 def minimize(pars,xdata_tuple,map_ravel):

@@ -53,19 +53,27 @@ x,y=np.meshgrid(x,y)
 signal_map_ravel = signal_map.ravel()
 
 signal_copy = np.copy(signal_map)
+snr_copy = np.copy(snr_map)
 signal_copy_ravel = signal_copy.ravel()
 for src in blobs:
 	#p = opt.minimize(chi_sqr,[signal_copy[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),signal_map_ravel)).x
 	p = opt.minimize(chi_sqr,[signal_map[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),signal_map_ravel)).x
+	p_snr = opt.minimize(chi_sqr,[snr_map[int(src[0]),int(src[1])],src[1],src[0],3],args=((x,y),snr_map.ravel())).x
 	print("initial guess: "+str(np.array([signal_copy[int(src[0]),int(src[1])],src[1],src[0],3]))) 
 	print("fit results " +str(p))
 	g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
+	g_snr_r = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3])
+	g_snr_r = g_snr_r.reshape(xlen,ylen)
 	g_r = g_r.reshape(xlen,ylen)
 	fig = plt.figure()
 	plt.imshow(g_r)
 	plt.savefig(str(src[0])+", "+str(src[1])+".png")
 	signal_copy = signal_copy - g_r
 	signal_copy_ravel = signal_copy.ravel()
+	snr_copy = snr_copy -g_snr_r
+blobs_new = feature.blob_dog(snr_copy,theta1,theta2,threshold=th)
+print(str(blobs_new))
+print("^new blobs")
 
 fig = plt.figure()
 plt.imshow(snr_map)

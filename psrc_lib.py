@@ -210,10 +210,10 @@ def point_srcs(clustername,theta1,theta2,nsigma):
                 #p = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),signal_map_ravel)).x
                 fit = opt.minimize(minimize,[signal_map[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),signal_map_ravel))
                 p = fit.x
-                flux_err = np.sqrt(np.sum(np.diag(fit.hess_inv)))
                 #g_r = twoD_Gaussian_elliptical((x,y),p[0],p[1],p[2],p[3],p[4],p[5],p[6])
                 g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
                 int_flux = np.sum(g_r)
+                flux_err = np.sqrt(np.sum(np.diag(fit.hess_inv)**2))*int_flux
                 #p_snr = opt.minimize(minimize,[snr_original[int(src[1]),int(src[0])],src[0],src[1],3,3,0,0],args=((x,y),snr_ravel)).x
                 p_snr = opt.minimize(minimize,[snr_original[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),snr_ravel)).x
             except RuntimeError:

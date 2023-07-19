@@ -11,11 +11,11 @@ direc_list = "ACT_Sources_2023_0f09-to-35f5_PCA0/"
 code = "20"
 theta_1 = 2.0
 theta_2 = 6.0
-all_vlass = pd.read_csv("all_vlass_sources_in_cluster_maps_rad_6arcmin.csv")
-all_first = pd.read_csv("all_first_sources_in_cluster_maps_rad_6arcmin.csv")
+all_vlass = pd.read_csv("../catalogs/all_vlass_sources_in_cluster_maps_rad_6arcmin.csv")
+all_first = pd.read_csv("../catalogs/all_first_sources_in_cluster_maps_rad_6arcmin.csv")
 
-psrcs_found = pd.read_csv("psrc_lists/final_cat_snr_5_3arcmin_snr_7.csv")
-matched = pd.read_csv("psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")
+psrcs_found = pd.read_csv("../psrc_lists/final_cat_snr_5_3arcmin_snr_7.csv")
+matched = pd.read_csv("../psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")
 
 clusters = np.unique(np.array(list(psrcs_found["cluster"])))
 for i in clusters:
@@ -33,5 +33,5 @@ for i in clusters:
 	plt.title(str(i))	
 	#plt.scatter(x_first,y_first,color="none",marker="s",edgecolor="blue")
 	plt.scatter(np.array(found_cluster["x"]),np.array(found_cluster["y"]),color="none",edgecolor="green")	
-	plt.savefig("psrc_img/"+str(i)+"_psrc_first.png")
+	plt.savefig("../psrc_img/"+str(i)+"_psrc_first.png")
 	plt.close(fig)

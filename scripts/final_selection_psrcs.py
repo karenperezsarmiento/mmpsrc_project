@@ -14,8 +14,8 @@ matched = pd.read_csv("../psrc_lists/all_matched.csv",low_memory=False)
 
 def cut_cat(df,theta_1,theta_2,inner_rad,snr_lower,snr_higher,noise_cut):
     df = df.loc[(df["theta_1"]==theta_1)&(df["theta_2"]==theta_2)&(df["noise_ps"]<noise_cut)]
-    inner = df.loc[(df["dist_center_radians"]<inner_rad)&(df["amp_snr"]>=snr_lower)]
-    outer = df.loc[(df["dist_center_radians"]>=inner_rad)&(df["amp_snr"]>=snr_higher)]
+    inner = df.loc[(df["dist_center_radians"]<inner_rad)&(df["snr"]>=snr_lower)]
+    outer = df.loc[(df["dist_center_radians"]>=inner_rad)&(df["snr"]>=snr_higher)]
     final = pd.concat([inner,outer])
     return final
 
@@ -23,12 +23,12 @@ def cut_cat(df,theta_1,theta_2,inner_rad,snr_lower,snr_higher,noise_cut):
 final = cut_cat(full,theta_1,theta_2,inner_rad,snr_lower,snr_higher,noise_cut)
 final_matched = cut_cat(matched,theta_1,theta_2,inner_rad,snr_lower,snr_higher,noise_cut)
 
-final.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/final_cat_snr_5_3arcmin_snr_7.csv")
-final_matched.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")
+final.to_csv("../psrc_lists/final_cat_snr_5_3arcmin_snr_7.csv")
+final_matched.to_csv("../psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")
 
 final_paper = final[["cluster","ra_deg","dec_deg","dist_center_radians","int_flux_Jy","int_flux_err_Jy"]]
 final_matched_paper = final_matched[["cluster","ra_deg","dec_deg","dist_center_radians","int_flux_Jy","int_flux_err_Jy","dist_center_radians","int_flux_Jy","Component_name_vlass","Component_id_vlass","RA_vlass","DEC_vlass","Total_flux_vlass","RA_first","DEC_first","FINT_first","Name_gleam","RAJ2000_gleam","DEJ2000_gleam","int_flux_wide_gleam","Source_name_tgss","RA_tgss","DEC_tgss","Total_flux_tgss","ra_wise","dec_wise","w1_flux_wise","w2_flux_wise","w3_flux_wise","w4_flux_wise","ra_2mass","dec_2mass","j_flux_2mass","h_flux_2mass","k_flux_2mass"]]
 
-final_paper.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/PAPER_final_cat_snr_5_3arcmin_snr_7.csv")
+final_paper.to_csv("../psrc_lists/PAPER_final_cat_snr_5_3arcmin_snr_7.csv")
 
-final_matched_paper.to_csv("/users/ksarmien/mmpsrc_project/psrc_lists/PAPER_final_matched_snr_5_3arcmin_snr_7.csv")
+final_matched_paper.to_csv("../psrc_lists/PAPER_final_matched_snr_5_3arcmin_snr_7.csv")

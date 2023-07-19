@@ -243,7 +243,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
         coords = coords_blobs(blob_list_tot,world,central_coord)
         ps_tot = np.empty([1,4])
         for src in blob_list_tot:
-            ps_val = snr_scaled[int(src[1]),int(src[0])]
+            ps_val = snr_original[int(src[1]),int(src[0])]
             ps_mask = bool(ps_val == 0.0)
             ps_noise = np.sum(noise_map[int(src[1])-2:int(src[1])+2,int(src[0])-2:int(src[0])+2])/16
             ps_hits = np.sum(hits_map[int(src[1])-2:int(src[1])+2,int(src[0])-2:int(src[0])+2])/16

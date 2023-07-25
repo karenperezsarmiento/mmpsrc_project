@@ -22,18 +22,37 @@ from astropy.convolution import Gaussian2DKernel
 from skimage import filters
 from scipy.ndimage import gaussian_filter
 from scipy import stats
+import argparse as ap
 
 #RUN THIS TO FIND ALL THE CLUSTER MAPS WITH THESE DATA REDUCTION PARAMS
 #find . -type f -name *_2asp_pca3_qm2_fitel_0f11-to-25f5Hz_qc_1p2rr_M_PdoCals_dt20_snr_iter1.fits > /home/users/ksarmien/Documents/clusters_substructure/out.txt
 
-dir_map = "/home/scratch/cromero/MUSTANG2/Reductions/ACT_Sources_2023_0f09-to-35f5_PCA0"
-reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
-reduction = reduc+"_files.txt"
+parser = ap.ArgumentParser(description="Point source finder for M2 SZ maps")
+parser.add_argument("-d","--dir_map",type=str,help="Directory of M2 maps")
+parser.add_argument("-r","--reduc",type=str,help="Imaging params of M2 maps")
+parser.add_argument("-re","--reduction",type=str,help="List of files with the maps")
+parser.add_argument("-ns","--nsigma",type=float,default=4.0,help="Sigma threshold for point source finder")
+parser.add_argument("-t1","--theta1",nargs="+",type=int,help="List of min Gaussian kernels")
+parser.add_argument("-t2","--theta2",nargs="+",type=int,help="List of max Gaussian kernels")
+parser.add_argument("-o","--outfile",type=str,help="Name of outfile")
+args = parser.parse_args()
+dir_map = args.dir_map
+reduc = args.reduc
+reduction = args.reduction
 reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
-nsigma = 4.
+nsigma = args.nsigma
+theta1 = args.theta1
+theta2 = args.theta2
+outfile = args.outfile
 
-red_codes = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/reductions_code.csv")
-code = np.array(pd.to_numeric(red_codes["code"][red_codes["reduction"] == reduction]))[0]
+#dir_map = "/home/scratch/cromero/MUSTANG2/Reductions/ACT_Sources_2023_0f09-to-35f5_PCA0"
+#reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
+#reduction = reduc+"_files.txt"
+#reduction_list = "/users/ksarmien/mmpsrc_project/reductions_lists/"+reduction
+#nsigma = 4.
+
+#red_codes = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/reductions_code.csv")
+code = 20.0
 
 def load_and_scale(cluster_file):
     mapD=cluster_file
@@ -58,7 +77,8 @@ def load_map(clustername):
     world = wcs.WCS(hdu_map.header)
     crval_ra = hdu_map.header["CRVAL1"]
     crval_dec = hdu_map.header["CRVAL2"]
-    return img_map,world,crval_ra,crval_dec
+    cd_pix = np.abs(hdu_map.header["CD1_1"])
+    return img_map,world,crval_ra,crval_dec,cd_pix
 
 
 def load_noise(clustername):
@@ -180,7 +200,9 @@ def coords_blobs(blob_list,world,central_coord):
     sep = np.array(central_coord.separation(sky_coord_blob).radian)
     return np.column_stack((coords_ra_dec,sep))
 
-def fitting_blobs(signal,snr,blob_list):
+def fitting_blobs(signal,snr,blob_list,cd_pix):
+    area_pix = (np.abs(cd_pix)*3600)**2
+    area_beam = 140.0
     xlen,ylen=signal.shape
     x = np.linspace(0,xlen-1,xlen)
     y = np.linspace(0,ylen-1,ylen)
@@ -196,7 +218,7 @@ def fitting_blobs(signal,snr,blob_list):
         p_snr = fit_snr.x
         g_r_snr = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3])
         g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
-        int_flux = np.sum(g_r)
+        int_flux = np.sum(g_r)*area_pix/area_beam
         flux_err = np.sqrt(np.sum(np.diag(fit.hess_inv)**2))*int_flux
         g_r_snr = g_r_snr.reshape(xlen,ylen)
         snr = snr - g_r_snr
@@ -209,19 +231,15 @@ def fitting_blobs(signal,snr,blob_list):
 
 def point_srcs(clustername,theta1,theta2,nsigma):
     snr_original,snr_scaled,factor=load_and_scale(clustername)
-    signal_map,world,crval_ra,crval_dec = load_map(clustername)
+    signal_map,world,crval_ra,crval_dec,cd_pix = load_map(clustername)
     hits_map = load_hits_map(clustername)
     noise_map = load_noise(clustername)
     central_coord = SkyCoord(ra = crval_ra*u.degree,dec = crval_dec*u.degree,frame="icrs")
     th = np.std(snr_original)*nsigma #five sigma? 
-    substitute1 = dir_map
-    substitute2 = "/ACT-CLJ\d+.\d+(\+|-)\d+/Jy_"
-    substitute3 = reduc + ".fits"
-    substitute4 = "/ACT_Sources_2023_0f09-to-35f5_PCA0"
-    key=re.sub(substitute1,"",clustername)
-    key=re.sub(substitute2,"",key)
-    key=re.sub(substitute3,"",key)
-    cluster =re.sub(substitute4,"",key)
+    substitutes = [dir_map,"/ACT-CLJ\d+.\d+(\+|-)\d+/Jy_",reduc+".fits","/ACT_Sources_2023_0f09-to-35f5_PCA0","/Jy_","/ACT_Sources_2023_0f09-to-35f5_PCA0","Jy_",reduc,"_\d+_s\d+_snr_iter1.fits"]
+    cluster = clustername
+    for s in substitutes:
+        cluster = re.sub(s,"",cluster)
     print(cluster)
     running = True
     snr_copy = snr_original.copy()
@@ -234,7 +252,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
         iters += 1
         if running:
             blob_list_tot = np.vstack((blob_list_tot,blob_list))
-            param_list,snr_copy = fitting_blobs(signal_map,snr_copy,blob_list)
+            param_list,snr_copy = fitting_blobs(signal_map,snr_copy,blob_list,cd_pix)
             param_list_tot = np.vstack((param_list_tot,param_list))
     blob_list_tot = blob_list_tot[1:]
     param_list_tot = param_list_tot[1:]
@@ -261,8 +279,6 @@ with open(reduction_list) as f:
         l = dir_map+line[1:]
         l = l[:-1]
         all_snr_files.append(l)
-theta1 = [2,3,4,5,6,7]
-theta2 = [2,3,4,5,6,7]
 psrc_list = np.empty([1,23])
 
 t0=time.time()
@@ -285,6 +301,4 @@ df_quality = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/data
 df_quality = df_quality.loc[df_quality["red_type"]==code]
 df_psrcs = pd.merge(df_psrcs,df_quality,how="left",left_on="cluster",right_on="Source")
 
-filename_1 = "/users/ksarmien/mmpsrc_project/psrc_lists/uncleaned_psrcs_sigma_"+reduc+"_"+str(nsigma)+"sigma.csv"
-df_psrcs.to_csv(filename_1,index=False)
-
+df_psrcs.to_csv(outfile,index=False)

@@ -5,8 +5,8 @@ import pandas as pd
 theta_1 = 2.0
 theta_2 = 6.0
 inner_rad = (3./60)*np.pi/180
-snr_lower = 5.0
-snr_higher = 7.0
+snr_lower = 4.5
+snr_higher = 6.7
 noise_cut = 0.00065
 
 full = pd.read_csv("../psrc_lists/uncleaned_psrcs_sigma__2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_4.0sigma.csv")

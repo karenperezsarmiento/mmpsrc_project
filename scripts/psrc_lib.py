@@ -236,7 +236,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     noise_map = load_noise(clustername)
     central_coord = SkyCoord(ra = crval_ra*u.degree,dec = crval_dec*u.degree,frame="icrs")
     th = np.std(snr_original)*nsigma #five sigma? 
-    substitutes = [dir_map,"/ACT-CLJ\d+.\d+(\+|-)\d+/Jy_",reduc+".fits","/ACT_Sources_2023_0f09-to-35f5_PCA0","/Jy_","/ACT_Sources_2023_0f09-to-35f5_PCA0","Jy_",reduc,"_\d+_s\d+_snr_iter1.fits"]
+    substitutes = [dir_map,"/ACT-CLJ\d+.\d+(\+|-)\d+/Jy_",".fits","/ACT_Sources_2023_0f09-to-35f5_PCA0","/Jy_","/ACT_Sources_2023_0f09-to-35f5_PCA0","Jy_","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20AGBT21B","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20AGBT22B","_snr_iter1"]
     cluster = clustername
     for s in substitutes:
         cluster = re.sub(s,"",cluster)

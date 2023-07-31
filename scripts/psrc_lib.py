@@ -207,7 +207,7 @@ def fitting_blobs(signal,snr,blob_list,cd_pix):
     x = np.linspace(0,xlen-1,xlen)
     y = np.linspace(0,ylen-1,ylen)
     x,y=np.meshgrid(x,y)
-    param_list = np.empty([1,10])
+    param_list = np.empty([1,11])
     signal_ravel = signal.ravel()
     signal_copy = signal_ravel.copy()
     snr_ravel = snr.ravel()
@@ -219,12 +219,14 @@ def fitting_blobs(signal,snr,blob_list,cd_pix):
         g_r_snr = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3])
         g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
         int_flux = np.sum(g_r)*area_pix/area_beam
-        flux_err = np.sqrt(np.sum(np.diag(fit.hess_inv)**2))*int_flux
+        flux_err = np.sqrt(np.diag(fit.hess_inv)[0]**2)
+        int_snr = np.sum(g_r_snr)*area_pix/area_beam
         g_r_snr = g_r_snr.reshape(xlen,ylen)
         snr = snr - g_r_snr
         p = np.append(p,int_flux)
         p = np.append(p,flux_err)
         p = np.append(p,p_snr)
+        p = np.append(p,int_snr)
         param_list = np.vstack((param_list,p))
     param_list = param_list[1:]
     return param_list,snr
@@ -244,7 +246,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     running = True
     snr_copy = snr_original.copy()
     blob_list_tot = np.empty([1,5])
-    param_list_tot = np.empty([1,10])
+    param_list_tot = np.empty([1,11])
     iters = 0
     while running and iters<1:
         print("iter")
@@ -279,7 +281,7 @@ with open(reduction_list) as f:
         l = dir_map+line[1:]
         l = l[:-1]
         all_snr_files.append(l)
-psrc_list = np.empty([1,23])
+psrc_list = np.empty([1,24])
 
 t0=time.time()
 for i in all_snr_files:
@@ -294,8 +296,8 @@ t1=time.time()
 t = t1-t0
 print(t)
 
-df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','int_flux_err_Jy','amp_snr','x_snr','y_snr','sigma_snr','snr','masked','noise_ps','hits_ps'])
-df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'int_flux_err_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
+df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','int_flux_err_Jy','amp_snr','x_snr','y_snr','sigma_snr','int_snr','snr','masked','noise_ps','hits_ps'])
+df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'int_flux_err_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'int_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
 df_quality = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]

@@ -53,6 +53,8 @@ outfile = args.outfile
 
 #red_codes = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/reductions_code.csv")
 code = 20.0
+ftol = 2.2204460492503131e-09
+#per scipy doc https://github.com/scipy/scipy/blob/fe877e2f5736cca82ed7b80496ccfb3c060c44fa/scipy/optimize/_lbfgsb_py.py#L212
 
 def load_and_scale(cluster_file):
     mapD=cluster_file
@@ -210,6 +212,7 @@ def fitting_blobs(signal,snr,blob_list,cd_pix):
     param_list = np.empty([1,11])
     signal_ravel = signal.ravel()
     signal_copy = signal_ravel.copy()
+    snr_copy = snr.copy()
     snr_ravel = snr.ravel()
     for src in blob_list:
         fit = opt.minimize(minimize,[signal[int(src[1]),int(src[0])],src[0],src[1],3],args=((x,y),signal_copy))
@@ -219,17 +222,20 @@ def fitting_blobs(signal,snr,blob_list,cd_pix):
         g_r_snr = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3])
         g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
         int_flux = np.sum(g_r)*area_pix/area_beam
-        flux_err = np.sqrt(np.diag(fit.hess_inv)[0]**2)
+        flux_err = np.sqrt(np.diag(fit.hess_inv)[0]*ftol*max(1,abs(fit.fun)))
         int_snr = np.sum(g_r_snr)*area_pix/area_beam
+        #print("snr amp fit"+str(p_snr[0]))
+        #print("snr amp fit rescaled"+str(p_snr[0]*area_pix/area_beam))
+        #print("snr_int = "+str(int_snr))
         g_r_snr = g_r_snr.reshape(xlen,ylen)
-        snr = snr - g_r_snr
+        #snr_copy = snr_copy - g_r_snr
         p = np.append(p,int_flux)
         p = np.append(p,flux_err)
         p = np.append(p,p_snr)
         p = np.append(p,int_snr)
         param_list = np.vstack((param_list,p))
     param_list = param_list[1:]
-    return param_list,snr
+    return param_list,snr_copy
 
 def point_srcs(clustername,theta1,theta2,nsigma):
     snr_original,snr_scaled,factor=load_and_scale(clustername)

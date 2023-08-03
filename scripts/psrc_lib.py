@@ -244,7 +244,17 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     noise_map = load_noise(clustername)
     central_coord = SkyCoord(ra = crval_ra*u.degree,dec = crval_dec*u.degree,frame="icrs")
     th = np.std(snr_original)*nsigma #five sigma? 
-    substitutes = [dir_map,"/ACT-CLJ\d+.\d+(\+|-)\d+/Jy_",".fits","/ACT_Sources_2023_0f09-to-35f5_PCA0","/Jy_","/ACT_Sources_2023_0f09-to-35f5_PCA0","Jy_","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20AGBT21B","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20AGBT22B","_snr_iter1"]
+    project = re.search("AGBT\d+B_\d+_\d+",clustername)
+    scanno = re.search("_s\d+_",clustername)
+    if project is None:
+        project = "all"
+    else:
+        project = project.group(0)
+    if scanno is None:
+        scanno = 0
+    else:
+        scanno = int(scanno.group(0)[2:-1])
+    substitutes = [dir_map,"/ACT-CLJ\d+.\d+(\+|-)\d+/Jy_",".fits","/ACT_Sources_2023_0f09-to-35f5_PCA0","/Jy_","/ACT_Sources_2023_0f09-to-35f5_PCA0","Jy_","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20AGBT21B","_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20AGBT22B","_snr_iter1","_\d+_\d+_s\d+"]
     cluster = clustername
     for s in substitutes:
         cluster = re.sub(s,"",cluster)
@@ -266,6 +276,8 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     param_list_tot = param_list_tot[1:]
     if len(blob_list_tot) > 0:
         cluster_list = list(np.repeat(cluster,len(blob_list_tot)))
+        project_list = list(np.repeat(project,len(blob_list_tot)))
+        scanno_list = list(np.repeat(scanno,len(blob_list_tot)))
         coords = coords_blobs(blob_list_tot,world,central_coord)
         ps_tot = np.empty([1,4])
         for src in blob_list_tot:
@@ -276,7 +288,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
             ps = np.array([ps_val,ps_mask,ps_noise,ps_hits])
             ps_tot = np.vstack((ps_tot,ps))
         ps_tot = ps_tot[1:]
-        result = np.column_stack((np.array(cluster_list),blob_list_tot,coords,param_list_tot,ps_tot))
+        result = np.column_stack((np.array(cluster_list),np.array(project_list),np.array(scanno_list),blob_list_tot,coords,param_list_tot,ps_tot))
     else:
         result = None
     return result
@@ -287,7 +299,7 @@ with open(reduction_list) as f:
         l = dir_map+line[1:]
         l = l[:-1]
         all_snr_files.append(l)
-psrc_list = np.empty([1,24])
+psrc_list = np.empty([1,26])
 
 t0=time.time()
 for i in all_snr_files:
@@ -302,8 +314,8 @@ t1=time.time()
 t = t1-t0
 print(t)
 
-df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','int_flux_err_Jy','amp_snr','x_snr','y_snr','sigma_snr','int_snr','snr','masked','noise_ps','hits_ps'])
-df_psrcs = df_psrcs.astype(dtype={'cluster':str,'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'int_flux_err_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'int_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
+df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster','project','scanno', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','int_flux_Jy','int_flux_err_Jy','amp_snr','x_snr','y_snr','sigma_snr','int_snr','snr','masked','noise_ps','hits_ps'])
+df_psrcs = df_psrcs.astype(dtype={'cluster':str,'project':str,'scanno':int, 'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'int_flux_Jy':float,'int_flux_err_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'int_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
 df_quality = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/data_quality_code_20.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]

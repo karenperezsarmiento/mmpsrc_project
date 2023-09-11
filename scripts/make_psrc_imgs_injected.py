@@ -32,7 +32,7 @@ for i in ff:
 	print(len(fake_cluster))
 	found_cluster = injected_found.loc[(injected_found["cluster"]==c)&(injected_found["project"]==project)&(injected_found["scanno"]==scanno)]
 	print(len(found_cluster))
-	fig = plt.figure()
+	fig =  plt.figure()
 	img_snr = hdu_snr.data
 	plt.subplot(projection=wcs)
 	plt.imshow(img_snr,origin="lower",cmap="bwr")

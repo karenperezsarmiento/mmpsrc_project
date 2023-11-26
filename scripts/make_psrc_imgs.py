@@ -6,8 +6,8 @@ from astropy.wcs import WCS
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 
-reduc_list = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
-direc_list = "ACT_Sources_2023_0f09-to-35f5_PCA0/"
+reduc_list = "_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr"
+direc_list = "real_maps/"
 code = "20"
 theta_1 = 2.0
 theta_2 = 6.0
@@ -19,7 +19,7 @@ matched = pd.read_csv("../psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")
 
 clusters = np.unique(np.array(list(psrcs_found["cluster"])))
 for i in clusters:
-	c_snr = "/home/scratch/cromero/MUSTANG2/Reductions/"+direc_list+i+"/Jy_"+i+reduc_list+".fits"
+	c_snr = "/home/scratch/sdicker/AGBT21B_298/"+direc_list+"Jy_"+i+reduc_list+".fits"
 	hdu_snr = fits.open(c_snr)[0]
 	wcs = WCS(hdu_snr.header)
 	found_cluster = psrcs_found.loc[psrcs_found["cluster"]==i]

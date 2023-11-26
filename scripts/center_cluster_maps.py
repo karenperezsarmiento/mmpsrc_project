@@ -3,7 +3,7 @@ import pandas as pd
 from astropy.io import fits
 from astropy import wcs
 
-reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1"
+reduc = "_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr"
 reduction = reduc+"_files.txt"
 reduction_list = "../reductions_lists/"+reduction
 
@@ -13,8 +13,8 @@ cluster_ra = []
 cluster_dec = []
 
 for i in cluster_list:
-	cluster = i[0][2:20]
-	c_snr = "/home/scratch/cromero/MUSTANG2/Reductions/ACT_Sources_2023_0f09-to-35f5_PCA0/"+cluster+i[0][20:]
+	cluster = i[0][5:23]
+	c_snr = "/home/scratch/sdicker/AGBT21B_298/real_maps/"+i[0][2:]
 	hdu_snr = fits.open(c_snr)[0]
 	world = wcs.WCS(hdu_snr.header)	
 	crpixx =hdu_snr.header["CRPIX1"] #central PIX IN X
@@ -27,4 +27,4 @@ for i in cluster_list:
 	
 central_arr = np.column_stack((cluster_name,cluster_ra,cluster_dec))
 df_central = pd.DataFrame(central_arr, columns = ["cluster","ra","dec"])
-df_central.to_csv("../catalogs/cluster_map_centers.csv")
+df_central.to_csv("../catalogs/cluster_map_centers.csv",index=False)

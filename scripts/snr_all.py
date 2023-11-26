@@ -5,10 +5,10 @@ import pandas as pd
 import re
 import scipy.optimize as opt
 
-reduc_list = ["_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_files.txt"]
-direc_list = ["ACT_Sources_2023_0f09-to-35f5_PCA0/"]
-code = ["20"]
-data_qual = pd.read_csv("../map_quality_tables/data_quality_code_20.csv")
+reduc_list = ["_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr_files.txt"]
+direc_list = ["real_maps/"]
+code = ["21"]
+data_qual = pd.read_csv("../map_quality_tables/data_quality_code_21.csv")
 
 cluster_name = []
 good_noise_area = []
@@ -20,8 +20,8 @@ H = np.zeros((len(min_rad),len(b)-1))
 N_pix = np.zeros(len(min_rad))
 
 
-def gaussian(xdata,amp,mean,std):
-        return amp*np.exp(-1*(xdata-mean)**2/(2*std**2))
+def gaussian(xdata,amp,mean,std,off):
+        return off + amp*np.exp(-1*(xdata-mean)**2/(2*std**2))
 
 def minimize(pars,xdata,hist_data):
         res = hist_data - gaussian(xdata, *pars)
@@ -32,12 +32,13 @@ for k in range(len(reduc_list)):
 	all_means = np.zeros((len(min_rad),len(cluster_list)))
 	all_std = np.zeros((len(min_rad),len(cluster_list)))
 	for i in cluster_list:
-		cluster = i[0][2:20]
+		cluster = i[0][5:23]
 		filtered = data_qual.loc[data_qual["Source"]==cluster]
 		amp = filtered["amp_fit_snr"].values[0]
 		mean = filtered["mean_fit_snr"].values[0]
+		off = 0
 		std = filtered["std_fit_snr"].values[0]
-		c_snr =  "/home/scratch/cromero/MUSTANG2/Reductions/"+direc_list[k]+i[0][2:]
+		c_snr =  "/home/scratch/sdicker/AGBT21B_298/"+direc_list[k]+i[0][2:]
 		c_weight = re.sub("snr","map",c_snr)
 		print(c_snr)
 		hdu = fits.open(c_snr)[0]
@@ -46,7 +47,7 @@ for k in range(len(reduc_list)):
 		img_weight = hdu_weight.data
 		histo = np.histogram(img[img_weight>0.0].ravel(),bins = b)[0]
 		x_histo = b[:-1] + np.diff(b)/2
-		fit = gaussian(x_histo,amp,mean,std)
+		fit = gaussian(x_histo,amp,mean,std,0)
 		arcsec_per_pixel = (3600*np.abs(hdu.header["CD1_1"]))
 		pixel_per_arcsec = 1./arcsec_per_pixel
 		pixel_per_arcmin = pixel_per_arcsec*60.
@@ -78,7 +79,7 @@ for k in range(len(reduc_list)):
 np.savetxt("../map_quality_tables/histo_data.csv",H) 
 fig = plt.figure()
 for i in range(len(min_rad)-3):
-	p = opt.minimize(minimize,[np.max(H[i]),0,1],args=(b[1:],H[i])).x
+	p = opt.minimize(minimize,[np.max(H[i]),0,1,0],args=(b[1:],H[i])).x
 	plt.step(b[:-1],H[i]/N_pix[i],label="r<="+str(max_rad[i])+"  r>"+str(min_rad[i]))
 plt.yscale("log")
 plt.title("Histogram of SNR per annuli across all cluster maps")

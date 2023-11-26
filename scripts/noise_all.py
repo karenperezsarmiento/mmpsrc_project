@@ -4,8 +4,8 @@ from astropy.io import fits
 import pandas as pd
 import re
 
-reduc = "_2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_files.txt"
-direc = "ACT_Sources_2023_0f09-to-35f5_PCA0/"
+reduc = "_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr_files.txt"
+direc = "real_maps/"
 cluster_name = []
 good_noise_area = []
 b = np.linspace(0.0,0.01,101)
@@ -20,8 +20,8 @@ cluster_list = np.array(pd.read_csv("../reductions_lists/"+reduc,header=None))
 median_noise = np.zeros((len(min_rad),len(cluster_list)))
 ii=0
 for i in cluster_list:
-	cluster = i[0][2:20]
-	c_snr =  "/home/scratch/cromero/MUSTANG2/Reductions/"+direc+i[0][2:]
+	cluster = i[0][5:23]
+	c_snr =  "/home/scratch/sdicker/AGBT21B_298/"+direc+i[0][2:]
 	hdu_noise = fits.open(c_snr)[1]
 	img_noise = hdu_noise.data
 	arcsec_per_pixel = (3600*np.abs(hdu_noise.header["CD1_1"]))

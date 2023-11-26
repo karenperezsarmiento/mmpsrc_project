@@ -10,7 +10,7 @@ m_tgss = pd.read_csv("../psrc_lists/matched_25arcsec_1and2_best1_tgss.csv").add_
 m_2mass = pd.read_csv("../psrc_lists/matched_9arcsec_1and2_best1_2mass.csv").add_suffix("_2mass")
 m_wise = pd.read_csv("../psrc_lists/matched_9arcsec_1and2_best1_wise.csv").add_suffix("_wise")
 
-blind = pd.read_csv("../psrc_lists/uncleaned_psrcs_sigma__2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_4.0sigma.csv")
+blind = pd.read_csv("../psrc_lists/unfiltered_psrcs_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr_5.0sigma.csv")
 all_matched = blind
 tabs_list = [m_vlass,m_first,m_gleam,m_tgss,m_2mass,m_wise]
 suffixes_right=["_vlass","_first","_gleam","_tgss","_2mass","_wise"]

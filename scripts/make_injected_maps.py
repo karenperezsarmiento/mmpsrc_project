@@ -11,9 +11,9 @@ code = ["20"]
 for k in range(len(reduc_list)):
 	cluster_list = np.array(pd.read_csv("/users/ksarmien/mmpsrc_project/reductions_lists/"+reduc_list[k],header=None))
 	for i in cluster_list:
-		cluster = i[0][4:22]
-		session = i[0][88:-15]
-		c_snr =  direc_list[k]+i[0][1:]
+		cluster = i[0][5:23]
+		session = i[0][89:-15]
+		c_snr =  direc_list[k]+i[0][2:]
 		print(cluster)
 		print(session)
 		c_map = re.sub("snr","map",c_snr)

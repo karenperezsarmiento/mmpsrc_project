@@ -9,7 +9,7 @@ snr_lower = 5.0
 snr_higher = 7.0
 noise_cut = 0.00065
 
-full = pd.read_csv("../psrc_lists/uncleaned_psrcs_sigma__2aspcmsubqm2_fitel_0f09-to-35f5Hz_qc_0p6rr_M_PdoCals_dt20_snr_iter1_4.0sigma.csv")
+full = pd.read_csv("../psrc_lists/unfiltered_psrcs_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr_5.0sigma.csv")
 matched = pd.read_csv("../psrc_lists/all_matched.csv",low_memory=False)
 
 def cut_cat(df,theta_1,theta_2,inner_rad,snr_lower,snr_higher,noise_cut):

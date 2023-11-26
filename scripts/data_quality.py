@@ -11,7 +11,7 @@ import scipy.optimize as opt
 red_codes = pd.read_csv("../map_quality_tables/reductions_code.csv")
 reduc_list = list(red_codes["reduction"])
 codes = np.array(list(red_codes["code"]))
-dir_map = "/home/scratch/cromero/MUSTANG2/Reductions/ACT_Sources_2023_0f09-to-35f5_PCA0"
+dir_map = "/home/scratch/sdicker/AGBT21B_298/real_maps"
 
 
 #all_clusters = np.array(pd.read_csv("gbt298_obs.csv")["Source"])
@@ -24,30 +24,29 @@ cluster_rms_snr = []
 cluster_avg_snr = []
 cluster_ntail = []
 reduction_type = []
-gaussian_fit_snr = np.repeat(0,3)
+gaussian_fit_snr = np.repeat(0,4)
 
-def gaussian(xdata,amp,mean,std):
-	return amp*np.exp(-1*(xdata-mean)**2/(2*std**2))
+def gaussian(xdata,amp,mean,std,off):
+	return off+amp*np.exp(-1*(xdata-mean)**2/(2*std**2))
 
 def minimize(pars,xdata,hist_data):
 	res = hist_data - gaussian(xdata, *pars)
 	return np.sqrt(np.mean(res**2)) 
 
 
-for k in [20]:
+#simon's reduction is 21 (charles's is 20)
+for k in [21]:
 	cluster_list = np.array(pd.read_csv("../reductions_lists/"+reduc_list[k],header=None))
 	current_code = codes[k]
 	reduc = re.sub("_files.txt","",reduc_list[k])
 	for i in cluster_list:
 		c = i[0]
 		substitute1 = dir_map
-		substitute2 = "./ACT-CLJ\d+.\d+(\+|-)\d+/Jy_"
-		substitute3 = reduc + ".fits"
-		substitute4 = "/ACT_Sources_2023_0f09-to-35f5_PCA0"
+		substitute2 = reduc + ".fits"
+		substitute3 = "./Jy_"
 		key=re.sub(substitute1,"",str(c))
 		key=re.sub(substitute2,"",key)
-		key=re.sub(substitute3,"",key)
-		cluster =re.sub(substitute4,"",key)
+		cluster=re.sub(substitute3,"",key)
 		#print(cluster)
 		#if current_code<18:
 		#	c_snr = "/home/scratch/cromero/MUSTANG2/Reductions/"+cluster+i[0][20:]
@@ -56,7 +55,7 @@ for k in [20]:
 		#	c_snr = "/home/scratch/sdicker/pnt_source_reductions/"+cluster+i[0][20:]
 		#	c_map = re.sub('_snr','_map',c_snr)
 		c_snr = dir_map+c[1:]
-		c_map = re.sub('_snr_iter1.fits','_map_iter1.fits',c_snr)
+		c_map = re.sub('_snr.fits','_map.fits',c_snr)
 		hdu_snr = fits.open(c_snr)[0]
 		hdu_map = fits.open(c_map)[0]
 		hdu_weight = fits.open(c_map)[1]
@@ -74,7 +73,7 @@ for k in [20]:
 		img_weight = hdu_weight.data
 		histo = np.histogram(img_snr[img_weight>0.0].ravel(),bins=np.linspace(-7.0,7.0,100))[0]
 		x_histo = np.linspace(-7.0,7.0,100)[:-1] + np.diff(np.linspace(-7.0,7.0,100))/2
-		p = opt.minimize(minimize,[np.max(histo),0,1],args=(x_histo,histo)).x
+		p = opt.minimize(minimize,[np.max(histo),0,1,0],args=(x_histo,histo)).x
 		gaussian_fit_snr = np.vstack((gaussian_fit_snr,p))
 		#res = convolve(img_map,kernel)
 		res = gaussian_filter(img_map,m2_beam_pix,order=0)
@@ -107,7 +106,7 @@ for k in [20]:
 
 gaussian_fit_snr = gaussian_fit_snr[1:]
 red = np.column_stack((cluster_name,cluster_rms_map,cluster_rms_snr,cluster_avg_snr,cluster_ntail,gaussian_fit_snr,reduction_type))
-df_red = pd.DataFrame(red, columns = ['Source','rms_map','rms_snr','avg_snr','ntail','amp_fit_snr','mean_fit_snr','std_fit_snr','red_type'])
+df_red = pd.DataFrame(red, columns = ['Source','rms_map','rms_snr','avg_snr','ntail','amp_fit_snr','mean_fit_snr','std_fit_snr','offset_fit_snr','red_type'])
 
-df_red.to_csv("../map_quality_tables/data_quality_code_20.csv")
+df_red.to_csv("../map_quality_tables/data_quality_code_21.csv",index=False)
 

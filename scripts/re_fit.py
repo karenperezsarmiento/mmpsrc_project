@@ -25,6 +25,7 @@ df = pd.read_csv("../psrc_lists/unfiltered_psrcs_2aspcmsubqm2_fitel_0f05-to-49f5
 theta_1 = 2.0
 theta_2 = 6.0
 df = df.loc[(df["theta_1"]==theta_1)&(df["theta_2"]==theta_2)]
+area_beam = 140.0
 
 res = np.empty((1,10))
 for i in range(len(df)):
@@ -38,6 +39,7 @@ for i in range(len(df)):
 	crval_ra = hdu_map.header["CRVAL1"]
 	crval_dec = hdu_map.header["CRVAL2"]
 	cd_pix = np.abs(hdu_map.header["CD1_1"])
+	area_pix = (np.abs(cd_pix)*3600)**2
 	s_0 = np.array(df["x"])[i]
 	s_1 = np.array(df["y"])[i]
 	signal_ravel = img_map.ravel()
@@ -49,11 +51,11 @@ for i in range(len(df)):
 	fit = opt.minimize(minimize,[img_map[int(s_1),int(s_0)],s_0,s_1,3],args=((x,y),signal_ravel))
 	p = fit.x
 	g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
-	int_flux = np.sum(g_r)
+	int_flux = np.sum(g_r)*area_pix/area_beam
 	fit_snr = opt.minimize(minimize,[img_snr[int(s_1),int(s_0)],s_0,s_1,3],args=((x,y),snr_ravel))
 	p_snr = fit_snr.x
 	g_r_snr = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3])
-	int_snr = np.sum(g_r_snr)
+	int_snr = np.sum(g_r_snr)*area_pix/area_beam
 	res_i = np.hstack((p,int_flux,p_snr,int_snr))
 	res = np.vstack((res,res_i))
 

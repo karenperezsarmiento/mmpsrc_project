@@ -23,6 +23,7 @@ from skimage import filters
 from scipy.ndimage import gaussian_filter
 from scipy import stats
 import argparse as ap
+import read_completeness as rc 
 
 #RUN THIS TO FIND ALL THE CLUSTER MAPS WITH THESE DATA REDUCTION PARAMS
 #find . -type f -name "*_2asp_pca3_qm2_fitel_0f11-to-25f5Hz_qc_1p2rr_M_PdoCals_dt20_snr_iter1.fits" > /home/users/ksarmien/Documents/clusters_substructure/out.txt
@@ -55,6 +56,9 @@ outfile = args.outfile
 code = 21.0
 ftol = 2.2204460492503131e-09
 #per scipy doc https://github.com/scipy/scipy/blob/fe877e2f5736cca82ed7b80496ccfb3c060c44fa/scipy/optimize/_lbfgsb_py.py#L212
+
+#BIAS AND COMPLETENESS FROM SIMON'S SIMS
+bias,comp = rc.read_comp_bias()
 
 def load_and_scale(cluster_file):
     mapD=cluster_file
@@ -205,35 +209,43 @@ def coords_blobs(blob_list,world,central_coord):
 def fitting_blobs(signal,snr,blob_list,cd_pix):
     area_pix = (np.abs(cd_pix)*3600)**2
     area_beam = 140.0
-    xlen,ylen=signal.shape
-    x = np.linspace(0,xlen-1,xlen)
-    y = np.linspace(0,ylen-1,ylen)
-    x,y=np.meshgrid(x,y)
-    param_list = np.empty([1,13])
+    #xlen,ylen=signal.shape
+    #x = np.linspace(0,xlen-1,xlen)
+    #y = np.linspace(0,ylen-1,ylen)
+    #x,y=np.meshgrid(x,y)
+    param_list = np.empty([1,8])
     signal_ravel = signal.ravel()
     signal_copy = signal_ravel.copy()
     snr_copy = snr.copy()
     snr_ravel = snr.ravel()
     for src in blob_list:
-        fit = opt.minimize(minimize,[signal[int(src[1]),int(src[0])],src[0],src[1],3,np.mean(signal)],args=((x,y),signal_copy))
-        fit_snr = opt.minimize(minimize,[snr[int(src[1]),int(src[0])],src[0],src[1],3,np.mean(signal)],args=((x,y),snr_ravel))
+        stamp = signal[int(src[1])-29:int(src[1])+29,int(src[0])-29:int(src[0])+29]
+        stamp_snr = snr[int(src[1])-29:int(src[1])+29,int(src[0])-29:int(src[0])+29]
+        xlen,ylen = stamp.shape
+        x = np.linspace(0,xlen-1,xlen)
+        y = np.linspace(0,ylen-1,ylen)
+        x,y = np.meshgrid(x,y)
+        stamp_ravel = stamp.ravel()
+        stamp_snr_ravel = stamp_snr.ravel()
+        fit = opt.minimize(minimize,[signal[int(src[1]),int(src[0])],30,30,3,0],args=((x,y),stamp_ravel))
+        #fit_snr = opt.minimize(minimize,[snr[int(src[1]),int(src[0])],30,src30,3,0],args=((x,y),snr_ravel))
         p = fit.x
-        p_snr = fit_snr.x
-        g_r_snr = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3],p_snr[4])
+        peak_snr = np.max(stamp_snr)
+        print(peak_snr)
+        #p_snr = fit_snr.x
+        #g_r_snr = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3],p_snr[4])
         g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3],p[4])
         int_flux = np.sum(g_r)*area_pix/area_beam
         flux_err = np.sqrt(np.diag(fit.hess_inv)[0]*ftol*max(1,abs(fit.fun)))
-        int_snr = np.sum(g_r_snr)*area_pix/area_beam
-        #print("snr amp fit"+str(p_snr[0]))
-        #print("snr amp fit rescaled"+str(p_snr[0]*area_pix/area_beam))
-        #print("snr_int = "+str(int_snr))
-        g_r_snr = g_r_snr.reshape(xlen,ylen)
-        #snr_copy = snr_copy - g_r_snr
-        p = np.append(p,int_flux)
-        p = np.append(p,flux_err)
-        p = np.append(p,p_snr)
-        p = np.append(p,int_snr)
-        param_list = np.vstack((param_list,p))
+        #int_snr = np.sum(g_r_snr)*area_pix/area_beam
+        #g_r_snr = g_r_snr.reshape(xlen,ylen)
+        x_fit = int((p[1]-30)+src[0])
+        y_fit = int((p[2]-30)+src[1])
+        p_out = np.array([p[0],x_fit,y_fit,p[3],p[4]])
+        p_out = np.append(p_out,int_flux)
+        p_out = np.append(p_out,flux_err)
+        p_out = np.append(p_out,peak_snr)
+        param_list = np.vstack((param_list,p_out))
     param_list = param_list[1:]
     return param_list,snr_copy
 
@@ -262,7 +274,7 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     running = True
     snr_copy = snr_original.copy()
     blob_list_tot = np.empty([1,5])
-    param_list_tot = np.empty([1,13])
+    param_list_tot = np.empty([1,8])
     iters = 0
     while running and iters<1:
         print("iter")
@@ -279,13 +291,22 @@ def point_srcs(clustername,theta1,theta2,nsigma):
         project_list = list(np.repeat(project,len(blob_list_tot)))
         scanno_list = list(np.repeat(scanno,len(blob_list_tot)))
         coords = coords_blobs(blob_list_tot,world,central_coord)
-        ps_tot = np.empty([1,4])
-        for src in blob_list_tot:
+        ps_tot = np.empty([1,5])
+        for hh,src in enumerate(blob_list_tot):
+            #dist = coords[hh][2]*180*60
+            #flux = param_list_tot[hh][0]*1000
+            ps_bias = bias((param_list_tot[hh][0]*1000,coords[hh][2]*180*60/np.pi))
+            try:
+                ps_bias = float(ps_bias)
+            except:
+                ps_bias = 1.
+            ps_amp_adj = param_list_tot[hh][0]*1000/ps_bias #adjusted peak flux in units mJy
+            print(ps_amp_adj)
             ps_val = snr_original[int(src[1]),int(src[0])]
             ps_mask = bool(ps_val == 0.0)
             ps_noise = np.sum(noise_map[int(src[1])-2:int(src[1])+2,int(src[0])-2:int(src[0])+2])/16
             ps_hits = np.sum(hits_map[int(src[1])-2:int(src[1])+2,int(src[0])-2:int(src[0])+2])/16
-            ps = np.array([ps_val,ps_mask,ps_noise,ps_hits])
+            ps = np.array([ps_amp_adj,ps_val,ps_mask,ps_noise,ps_hits])
             ps_tot = np.vstack((ps_tot,ps))
         ps_tot = ps_tot[1:]
         result = np.column_stack((np.array(cluster_list),np.array(project_list),np.array(scanno_list),blob_list_tot,coords,param_list_tot,ps_tot))
@@ -299,7 +320,7 @@ with open(reduction_list) as f:
         l = dir_map+line[1:]
         l = l[:-1]
         all_snr_files.append(l)
-psrc_list = np.empty([1,28])
+psrc_list = np.empty([1,24])
 
 t0=time.time()
 for i in all_snr_files:
@@ -314,8 +335,8 @@ t1=time.time()
 t = t1-t0
 print(t)
 
-df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster','project','scanno', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','offset','int_flux_Jy','int_flux_err_Jy','amp_snr','x_snr','y_snr','sigma_snr','offset_snr','int_snr','snr','masked','noise_ps','hits_ps'])
-df_psrcs = df_psrcs.astype(dtype={'cluster':str,'project':str,'scanno':int, 'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'offset':float,'int_flux_Jy':float,'int_flux_err_Jy':float,'amp_snr':float,'x_snr':float,'y_snr':float,'sigma_snr':float,'offset_snr':float,'int_snr':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
+df_psrcs = pd.DataFrame(psrc_list[1:],columns = ['cluster','project','scanno', 'x', 'y','sigma_dog','theta_1','theta_2', 'ra_deg', 'dec_deg', 'dist_center_radians','amp_fit', 'x_center_fit', 'y_center_fit', 'sigma','offset','int_flux_Jy','int_flux_err_Jy','peak_snr','peak_flux_mJy_adj','snr','masked','noise_ps','hits_ps'])
+df_psrcs = df_psrcs.astype(dtype={'cluster':str,'project':str,'scanno':int, 'x':float,'y':float,'sigma_dog':float,'theta_1':float,'theta_2':float,'ra_deg':float,'dec_deg':float,'dist_center_radians':float,'amp_fit':float,'x_center_fit':float,'y_center_fit':float,'sigma':float,'offset':float,'int_flux_Jy':float,'int_flux_err_Jy':float,'peak_snr':float,'peak_flux_mJy_adj':float,'snr':float,'masked':float,'noise_ps':float,'hits_ps':float})
 
 df_quality = pd.read_csv("/users/ksarmien/mmpsrc_project/map_quality_tables/data_quality_code_21.csv")
 df_quality = df_quality.loc[df_quality["red_type"]==code]

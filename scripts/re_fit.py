@@ -6,6 +6,7 @@ from astropy import wcs
 import scipy.optimize as opt
 from astropy.coordinates import Angle
 import re
+import matplotlib.pyplot as plt
 
 def twoD_Gaussian(xdata_tuple, amplitude, xo, yo, sigma):
     (x,y) = xdata_tuple
@@ -51,6 +52,14 @@ for i in range(len(df)):
 	fit = opt.minimize(minimize,[img_map[int(s_1),int(s_0)],s_0,s_1,3],args=((x,y),signal_ravel))
 	p = fit.x
 	g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3])
+	pred = g_r.reshape(xlen,ylen)
+	sub = img_map - pred
+	fig = plt.figure()
+	plt.imshow(sub)
+	sub_fn= "../subtracted/"+np.array(df["cluster"])[i]+str(np.array(df["ra_deg"])[i])+".png"
+	print(sub_fn)
+	plt.savefig(sub_fn)
+	plt.close(fig)
 	int_flux = np.sum(g_r)*area_pix/area_beam
 	fit_snr = opt.minimize(minimize,[img_snr[int(s_1),int(s_0)],s_0,s_1,3],args=((x,y),snr_ravel))
 	p_snr = fit_snr.x
@@ -63,7 +72,7 @@ res = res[1:]
 
 df[["amp_fit_new","x_center_fit_new","y_center_fit_new","sigma_new","int_flux_Jy_new","amp_snr_new","x_snr_new","y_snr_new","sigma_snr_new","int_snr_new"]] = res
 
-df.to_csv("../psrc_lists/new_fitting_no_offset.csv")
+#df.to_csv("../psrc_lists/new_fitting_no_offset.csv")
 
 
 	

@@ -20,14 +20,14 @@ def minimize(pars,log10_freqs,log10_fluxes):
     return np.sqrt(np.mean(res**2))
 
 for i in range(len(f_all_matched)):
-    m2_flux = f_all_matched.iloc[i]["int_flux_Jy"]*1000
+    m2_flux = f_all_matched.iloc[i]["peak_flux_mJy_adj"]
     cat_fluxes = np.array(list(f_all_matched.iloc[i][["Total_flux_vlass","FINT_first","int_flux_076_gleam","int_flux_084_gleam","int_flux_092_gleam","int_flux_099_gleam","int_flux_107_gleam","int_flux_115_gleam","int_flux_122_gleam","int_flux_130_gleam","int_flux_143_gleam","int_flux_151_gleam","int_flux_158_gleam","int_flux_166_gleam","int_flux_174_gleam","int_flux_181_gleam","int_flux_189_gleam","int_flux_197_gleam","int_flux_204_gleam","int_flux_212_gleam","int_flux_220_gleam","Total_flux_tgss","j_m_2mass","h_m_2mass","k_m_2mass","w1_flux_wise","w2_flux_wise","w3_flux_wise","w4_flux_wise"]]))
     cat_fluxes_fit = np.log10(np.append(np.array(list(f_all_matched.iloc[i][["FINT_first","Total_flux_vlass"]]),dtype=float),m2_flux))
     if np.sum(np.isnan(cat_fluxes_fit))<2:
         p = opt.minimize(minimize,[-0.7,0.0],args=(freqs_fit[~np.isnan(cat_fluxes_fit)],cat_fluxes_fit[~np.isnan(cat_fluxes_fit)])).x
     else:
         p = np.repeat(999,2)
-    row=np.append(np.array(list(f_all_matched.iloc[i][["cluster","ra_deg","dec_deg","FINT_first","Total_flux_vlass","int_flux_Jy"]])),p)
+    row=np.append(np.array(list(f_all_matched.iloc[i][["cluster","ra_deg","dec_deg","FINT_first","Total_flux_vlass","peak_flux_mJy_adj"]])),p)
     sed_arr = np.vstack((sed_arr,row))
     print(i)
     if len(cat_fluxes) == np.sum(np.isnan(cat_fluxes)):

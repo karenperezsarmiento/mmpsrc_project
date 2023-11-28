@@ -3,3 +3,7 @@ snr_maps/
 maps/
 snr_histogram/
 psrc_img/
+maps_injected/
+psrc_img_injected/
+snr_maps_injected/
+subtracted/

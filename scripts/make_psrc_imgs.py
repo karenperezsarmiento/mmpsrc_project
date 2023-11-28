@@ -8,7 +8,7 @@ from astropy import units as u
 
 reduc_list = "_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr"
 direc_list = "real_maps/"
-code = "20"
+code = "21"
 theta_1 = 2.0
 theta_2 = 6.0
 all_vlass = pd.read_csv("../catalogs/all_vlass_sources_in_cluster_maps_rad_6arcmin.csv")

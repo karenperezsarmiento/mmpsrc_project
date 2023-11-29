@@ -13,16 +13,16 @@ noise_cut = 0.00065
 full = pd.read_csv("../psrc_lists/unfiltered_psrcs_2aspcmsubqm2_fitel_0f05-to-49f5Hz_qc_0p6rr_M_PdoCals_dt10_snr_5.0sigma.csv")
 matched = pd.read_csv("../psrc_lists/all_matched.csv",low_memory=False)
 
-def cut_cat(df,theta_1,theta_2,inner_rad,snr_lower,snr_higher,max_rad):
-    df = df.loc[(df["theta_1"]==theta_1)&(df["theta_2"]==theta_2)]
+def cut_cat(df,theta_1,theta_2,inner_rad,snr_lower,snr_higher,max_rad,noise_cut):
+    df = df.loc[(df["theta_1"]==theta_1)&(df["theta_2"]==theta_2)&(df["noise_ps"]<noise_cut)]
     inner = df.loc[(df["dist_center_radians"]<inner_rad)&(df["peak_snr"]>=snr_lower)]
     outer = df.loc[(df["dist_center_radians"]>=inner_rad)&(df["dist_center_radians"]<max_rad)&(df["peak_snr"]>=snr_higher)]
     final = pd.concat([inner,outer])
     return final
 
 
-final = cut_cat(full,theta_1,theta_2,inner_rad,snr_lower,snr_higher,max_rad)
-final_matched = cut_cat(matched,theta_1,theta_2,inner_rad,snr_lower,snr_higher,max_rad)
+final = cut_cat(full,theta_1,theta_2,inner_rad,snr_lower,snr_higher,max_rad,noise_cut)
+final_matched = cut_cat(matched,theta_1,theta_2,inner_rad,snr_lower,snr_higher,max_rad,noise_cut)
 
 final.to_csv("../psrc_lists/final_cat_snr_5_3arcmin_snr_7.csv")
 final_matched.to_csv("../psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")

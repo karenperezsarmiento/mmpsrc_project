@@ -17,21 +17,21 @@ all_first = pd.read_csv("../catalogs/all_first_sources_in_cluster_maps_rad_6arcm
 psrcs_found = pd.read_csv("../psrc_lists/final_cat_snr_5_3arcmin_snr_7.csv")
 matched = pd.read_csv("../psrc_lists/final_matched_snr_5_3arcmin_snr_7.csv")
 
-clusters = np.unique(np.array(list(psrcs_found["cluster"])))
-for i in clusters:
-	c_snr = "/home/scratch/sdicker/AGBT21B_298/"+direc_list+"Jy_"+i+reduc_list+".fits"
+clusters = np.array(list(psrcs_found["cluster"]))
+for i in range(len(psrcs_found)):
+	ci = np.array(psrcs_found["cluster"])[i]
+	xi = int(np.array(psrcs_found["x"])[i])
+	yi = int(np.array(psrcs_found["y"])[i])
+	c_snr = "/home/scratch/sdicker/AGBT21B_298/"+direc_list+"Jy_"+ci+reduc_list+".fits"
 	hdu_snr = fits.open(c_snr)[0]
 	wcs = WCS(hdu_snr.header)
-	found_cluster = psrcs_found.loc[psrcs_found["cluster"]==i]
-	first_cluster = all_first.loc[all_first["cluster"]==i]
-	sky_first = SkyCoord(ra=np.array(first_cluster["RA_2"])*u.degree,dec=np.array(first_cluster["DEC_2"])*u.degree,frame="icrs")
-	x_first,y_first = wcs.world_to_pixel(sky_first)
 	fig = plt.figure()
 	img_snr = hdu_snr.data
 	plt.subplot(projection=wcs)
-	plt.imshow(img_snr,origin="lower",cmap="bwr")
+	plt.imshow(img_snr[yi-29:yi+29,xi-29:xi+29],origin="lower",cmap="bwr")
 	plt.title(str(i))	
 	#plt.scatter(x_first,y_first,color="none",marker="s",edgecolor="blue")
-	plt.scatter(np.array(found_cluster["x"]),np.array(found_cluster["y"]),color="none",edgecolor="green")	
+	plt.scatter(30,30,color="none",edgecolor="green",s=500)	
 	plt.savefig("../psrc_img/"+str(i)+"_psrc_first.png")
+	print(str(i))
 	plt.close(fig)

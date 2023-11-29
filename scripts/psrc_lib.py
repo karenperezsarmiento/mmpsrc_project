@@ -231,7 +231,6 @@ def fitting_blobs(signal,snr,blob_list,cd_pix):
         #fit_snr = opt.minimize(minimize,[snr[int(src[1]),int(src[0])],30,src30,3,0],args=((x,y),snr_ravel))
         p = fit.x
         peak_snr = np.max(stamp_snr)
-        print(peak_snr)
         #p_snr = fit_snr.x
         #g_r_snr = twoD_Gaussian((x,y),p_snr[0],p_snr[1],p_snr[2],p_snr[3],p_snr[4])
         g_r = twoD_Gaussian((x,y),p[0],p[1],p[2],p[3],p[4])
@@ -277,7 +276,6 @@ def point_srcs(clustername,theta1,theta2,nsigma):
     param_list_tot = np.empty([1,8])
     iters = 0
     while running and iters<1:
-        print("iter")
         blob_list,running = psrc_finder(snr_copy,theta1,theta2,th)
         iters += 1
         if running:
@@ -293,15 +291,20 @@ def point_srcs(clustername,theta1,theta2,nsigma):
         coords = coords_blobs(blob_list_tot,world,central_coord)
         ps_tot = np.empty([1,5])
         for hh,src in enumerate(blob_list_tot):
-            #dist = coords[hh][2]*180*60
-            #flux = param_list_tot[hh][0]*1000
-            ps_bias = bias((param_list_tot[hh][0]*1000,coords[hh][2]*180*60/np.pi))
+            dist = coords[hh][2]*180*60
+            flux = param_list_tot[hh][0]*1000
+            if (dist<4.0)&(flux<20.0):
+                ps_bias = bias((param_list_tot[hh][0]*1000,coords[hh][2]*180*60/np.pi))
+            else:
+                ps_bias = 1.
             try:
                 ps_bias = float(ps_bias)
             except:
                 ps_bias = 1.
+            if ps_bias<0.:
+                ps_bias = 1.
             ps_amp_adj = param_list_tot[hh][0]*1000/ps_bias #adjusted peak flux in units mJy
-            print(ps_amp_adj)
+            print(ps_bias)
             ps_val = snr_original[int(src[1]),int(src[0])]
             ps_mask = bool(ps_val == 0.0)
             ps_noise = np.sum(noise_map[int(src[1])-2:int(src[1])+2,int(src[0])-2:int(src[0])+2])/16
